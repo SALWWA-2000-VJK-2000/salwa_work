@@ -1,0 +1,33 @@
+CLASS HOSPITAL
+	ATTRIBUTES 
+	    ID:NUMBER
+	    NAME: TEXT
+	    ADDRESS: TEXT
+	    PATIENTS: LIST OF PATIENTS
+	CONSTRUCTOR( n:TEXT, a:TEXT, p: LIST OF PATIENTS )
+	    SET NAME TO n
+	    SET ADDRESS TO a
+	    SET PATIENTS p
+	END CONSTRUCTOR
+	METHODS
+	    admitPatient PATIENTS(newPATIENT: PATIENT)
+	       ADD newPATIENT TO LIST PATIENTS
+	    END METHODS
+	    
+	    dischargePatient(p: Patient, dischargeDate: String)
+	       SET p.isAdmitted TO false 
+	       SET p.dischargeDate TO dischargeDate 
+	    END METHOD
+
+	    countAdmittedPatients()
+		SET COUNT TO 0
+END CLASS
+
+
+START
+    BEGIN
+	CREATE OBJECT theHOSPITAL OF HOSPITAL("Bader Asama","Al Kuwair" )
+	CREATE OBJECT patient1 OF Patient(1, "Ali", true)
+        CREATE OBJECT patient2 OF Patient(2, "Sara", true)
+
+	   
