@@ -8,7 +8,7 @@ CLASS VETERINARY
 		PRIVATE PETS: LIST<TEXT>[]
 		PRIVATE VISITS: LIST<TEXT> []
 		
-		CONSTRUCTOR(n: TEXT, o:TEXT, p: LIST<TEXT>, v:<TEXT>)
+		CONSTRUCTOR(n: TEXT, o:TEXT, p: LIST<TEXT>, v: LIST<TEXT>)
 			SET NAME TO n
 			SET OWNERS TO o
 			SET PETS TO p
@@ -235,59 +235,581 @@ END CLASS
 
 START
 	BEGIN
-
 		CREATE OBJECT vetClinic OF VETERINARY("Al Rahma Vet Clinic")
 
 		CREATE OBJECT owner1 OF OWNER("Ali", "99887766")
-		CREATE OBJECT owner2 OF OWNER("Sara", "91234567")
-
-		CALL vetClinic.ADD_OWNER(owner1)
-		CALL vetClinic.ADD_OWNER(owner2)
-
+		vetClinic.ADD_OWNER(owner1)
+		
 		CREATE OBJECT pet1 OF PET("Max", "2020-05-10", "Dog")
 		CREATE OBJECT pet2 OF PET("Mimi", "2022-01-15", "Cat")
-
-		CALL owner1.ADD_PET(pet1)
-		CALL owner2.ADD_PET(pet2)
-
-		CALL vetClinic.ADD_PET(pet1)
-		CALL vetClinic.ADD_PET(pet2)
+		owner1.ADD_PET(pet1)
+		owner2.ADD_PET(pet2)
+		vetClinic.ADD_PET(pet1)
+		vetClinic.ADD_PET(pet2)
 
 		CREATE OBJECT visit1 OF VISIT(pet1)
-		CREATE OBJECT visit2 OF VISIT(pet2)
-
-		CALL vetClinic.ADD_VISIT(visit1)
-		CALL vetClinic.ADD_VISIT(visit2)
+		vetClinic.ADD_VISIT(visit1)
 
 		CREATE OBJECT exam1 OF EXAMINATION("Fever", {TEMP: 40, HEART_RATE: 150})
-		CREATE OBJECT exam2 OF EXAMINATION("Checkup", {TEMP: 38, HEART_RATE: 90})
-
-		CALL visit1.ADD_EXAMINATION(exam1)
-		CALL visit2.ADD_EXAMINATION(exam2)
-
-	    CALL pet1.ADD_EXAMINATION(exam1)
-        CALL pet2.ADD_EXAMINATION(exam2)
+		visit1.ADD_EXAMINATION(exam1)
+	    pet1.ADD_EXAMINATION(exam1)
 
 		CREATE OBJECT treatment1 OF TREATMENT("Antibiotics", 50)
-		CREATE OBJECT treatment2 OF TREATMENT("Vitamins", 20)
-
-		CALL exam1.ADD_TREATMENT(treatment1)
-		CALL exam1.ADD_TREATMENT(treatment2)
-
+		exam1.ADD_TREATMENT(treatment1)
+		
+		
 		SET total1 TO visit1.CALCULATE_TOTAL()
 		DISPLAY total1
-
-		SET total2 TO visit2.CALCULATE_TOTAL()
-		DISPLAY total2
 
 		CALL exam1.SET_CHECK_URGENT()
 			IF exam1.IS_URGENT() THEN
 				DISPLAY "URGENT"
-		END IF
-
-		CALL exam2.SET_CHECK_URGENT()
-			IF exam2.IS_URGENT() THEN
-				DISPLAY "NORMAL"
-		END IF
+		END IF	
 	END
 STOP
+
+
+//Task 279: Movie Theater 
+
+CLASS FILM
+	ATTRIBUTES
+		PRIVATE ID: NUMBER
+		PRIVATE TITLE:TEXT
+		PRIVATE DURATION : NUMBER
+		PRIVATE GENDER: TEXT
+		
+		CONSTRUCTOR(t: TEXT, d: NUMBER, g: TEXT)
+        SET title TO t
+        SET duration TO d
+        SET genre TO g
+    END CONSTRUCTOR
+
+    METHODS
+		GET_ID()
+			DISPLAY ID
+		END METHOD
+
+        GET_TITLE()
+            DISPLAY title
+        END METHOD
+		
+		GET_duration()
+			DISPLAY duration
+		END METHOD
+		
+		GET_genre()
+			DISPLAY genre
+		END METHOD
+END CLASS
+
+CLASS Screen
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE capacity: NUMBER
+        PRIVATE seatingLayout: LIST<Seat>
+
+    CONSTRUCTOR(n: TEXT, c: NUMBER, s:LIST<Seat> )
+        SET name TO n
+        SET capacity TO c
+        SET seatingLayout TO LIST<Seat>
+    END CONSTRUCTOR
+
+    METHODS
+		GET_ID()
+			DISPLAY ID
+		END METHOD
+		
+		GET_NAME()
+			DISPLAY 
+		END METHOD
+		
+        GET_CAPACITY()
+            DISPLAY capacity
+        END METHOD
+END CLASS
+
+
+CLASS Showtime
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE film: Film
+        PRIVATE screen: Screen
+        PRIVATE DURATION : NUMBER
+        PRIVATE tickets: LIST<Ticket>
+
+    CONSTRUCTOR(f: Film, s: Screen, d: NUMBER,t:LIST<Ticket> )
+            SET film TO f
+            SET screen TO s
+            SET DURATION TO d
+            SET tickets TO LIST<TEXT>
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_TICKET(t: Ticket)
+            IF SIZE OF tickets < screen.capacity AND t.seatNumber NOT IN tickets THEN
+                ADD t TO tickets
+            ELSE
+                DISPLAY "Seat already booked or capacity exceeded"
+            END IF
+        END METHOD
+
+        GET_AVAILABLE_SEATS()
+            DISPLAY screen.capacity - SIZE OF tickets
+        END METHOD
+END CLASS
+
+
+
+CLASS TICKET
+	ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE customer: Customer
+        PRIVATE seatNumber: TEXT
+        PRIVATE showtime: Showtime
+
+    CONSTRUCTOR(c: Customer, s: TEXT, st: Showtime)
+        SET customer TO c
+        SET seatNumber TO s
+        SET showtime TO st
+    END CONSTRUCTOR
+
+    METHODS
+		GET_Customer()
+			DISPLAY Customer
+		END METHOD
+		
+        GET_SEAT_NUMBER()
+            DISPLAY seatNumber
+        END METHOD
+END CLASS
+
+CLASS CUSTOMER
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE phone: TEXT
+
+    CONSTRUCTOR(n: TEXT, ph: TEXT)
+        SET name TO n
+        SET phone TO ph
+    END CONSTRUCTOR
+
+    METHODS
+		GET_ID()
+			DISPLAY ID
+		END METHOD
+		
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+END CLASS
+
+START
+    BEGIN
+        CREATE OBJECT film1 OF Film("Inception", 148, "Sci-Fi")
+        CREATE OBJECT screen1 OF Screen("Screen A", 100)
+
+        CREATE OBJECT showtime1 OF Showtime(film1, screen1, "14:00 TO 6:30")
+
+        CREATE OBJECT customer1 OF Customer("Ali", "99887766")
+        CREATE OBJECT ticket1 OF Ticket(customer1, "A10", showtime1)
+
+        showtime1.ADD_TICKET(ticket1)
+
+        DISPLAY showtime1.GET_AVAILABLE_SEATS()
+    END
+STOP
+
+//Task 280: Warehouse Inventory
+
+CLASS VENDOR
+	ATTRIBUTES
+		PRIVATE ID: NUMBER
+		PRIVATE NAME: TEXT
+		PRIVATE ContactDetails : TEXT
+		PRIVATE ReliabilityRating: NUMBER
+		
+		CONSTRUCTOR(n: TEXT, cd: TEXT, r: NUMBER)
+			SET NAME TO n
+			SET ContactDetails TO cd
+			SET ReliabilityRating TO r
+		END CONSTRUCTOR
+	
+	METHODS
+		GET_NAME()
+			DISPLAY NAME
+		END METHOD
+
+        GET_CONTACT()
+            DISPLAY ContactDetails
+        END METHOD
+
+        GET_RELIABILITY()
+            DISPLAY ReliabilityRating
+        END METHOD
+
+        UPDATE_RELIABILITY(onTime: BOOLEAN)
+            IF onTime EUQALS TO FALSE THEN
+                SET ReliabilityRating TO ReliabilityRating - 1
+            END IF
+        END METHOD
+END CLASS
+
+CLASS Product
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE category: Category
+        PRIVATE bins: LIST<StorageBin>
+        PRIVATE vendor: Vendor
+
+    CONSTRUCTOR(n: TEXT, c: Category, v: Vendor)
+        SET name TO n
+        SET category TO c
+        SET vendor TO v
+        SET bins TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_BIN(b: StorageBin)
+            ADD b TO bins
+        END METHOD
+
+        CALCULATE_TOTAL_STOCK()
+            SET total TO 0
+			REPEAT WHILE i < SIZE OF bins
+				SET total TO total + bins[i].GET_QUANTITY()
+				SET i TO i + 1
+			END REPEAT
+			DISPLAY total
+        END METHOD
+
+        PROCESS_MOVEMENT(m: StockMovement)
+            IF m.type EUQALS TO "OUT" AND m.quantity GREATER THAN CALCULATE_TOTAL_STOCK() THEN
+                DISPLAY "Error: insufficient stock"
+            ELSE
+                IF m.type EUQALS TO "IN" THEN
+                    m.bin.ADD_QUANTITY(m.quantity)
+                ELSE
+                    m.bin.REMOVE_QUANTITY(m.quantity)
+                END IF
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS Category
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+
+    CONSTRUCTOR(n: TEXT)
+        SET name TO n
+    END CONSTRUCTOR
+
+    METHODS
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+END CLASS
+
+
+CLASS StorageBin
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE product: Product
+        PRIVATE quantity: NUMBER
+
+    CONSTRUCTOR(p: Product, q: NUMBER)
+        SET product TO p
+        SET quantity TO q
+    END CONSTRUCTOR
+
+    METHODS
+        GET_QUANTITY()
+            DISPLAY quantity
+        END METHOD
+
+        ADD_QUANTITY(q: NUMBER)
+            SET quantity TO quantity + q
+        END METHOD
+
+        REMOVE_QUANTITY(q: NUMBER)
+            IF q LESS THAN OR EUQALS quantity THEN
+                SET quantity TO quantity - q
+            ELSE
+                DISPLAY "Error: not enough stock in bin"
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS StockMovement
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE product: Product
+        PRIVATE bin: StorageBin
+        PRIVATE type: TEXT   
+        PRIVATE quantity: NUMBER
+        PRIVATE date: TEXT
+
+    CONSTRUCTOR(p: Product, b: StorageBin, t: TEXT, q: NUMBER, d: TEXT)
+        SET product TO p
+        SET bin TO b
+        SET type TO t
+        SET quantity TO q
+        SET date TO d
+    END CONSTRUCTOR
+
+    METHODS
+        GET_TYPE()
+            DISPLAY type
+        END METHOD
+
+        GET_QUANTITY()
+            DISPLAY quantity
+        END METHOD
+
+        GET_DATE()
+            DISPLAY date
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT vendor1 OF Vendor("Global Supplies", "contact@global.om", 100)
+        CREATE OBJECT category1 OF Category("Electronics")
+        CREATE OBJECT product1 OF Product("Laptop", category1, vendor1)
+
+        CREATE OBJECT bin1 OF StorageBin(product1, 50)
+        CREATE OBJECT bin2 OF StorageBin(product1, 30)
+        product1.ADD_BIN(bin1)
+        product1.ADD_BIN(bin2)
+        DISPLAY product1.CALCULATE_TOTAL_STOCK()  
+
+        CREATE OBJECT movement1 OF StockMovement(product1, bin1, "OUT", 20, "2026-07-02")
+        product1.PROCESS_MOVEMENT(movement1)
+        DISPLAY product1.CALCULATE_TOTAL_STOCK()   
+
+        CREATE OBJECT movement3 OF StockMovement(product1, bin1, "IN", 40, "2026-07-02")
+        product1.PROCESS_MOVEMENT(movement3)
+        DISPLAY product1.CALCULATE_TOTAL_STOCK()   
+
+        vendor1.UPDATE_RELIABILITY(FALSE)        
+        DISPLAY vendor1.GET_RELIABILITY()
+    END
+STOP
+
+
+//Task 281: School Classroom
+CLASS Classroom
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE teacher: TEXT
+        PRIVATE subject: TEXT
+        PRIVATE students: LIST<Student>
+        PRIVATE maxSize: NUMBER
+        PRIVATE schedule: TEXT   
+
+    CONSTRUCTOR(t: Teacher, s: Subject,st: LIST<TEXT>, m: NUMBER, sch: TEXT)
+        SET teacher TO t
+        SET subject TO s
+        SET maxSize TO m
+		SET students TO LIST<TEXT> 
+        SET schedule TO sch
+    END CONSTRUCTOR
+
+    METHODS
+	    GET_id()
+            DISPLAY id
+        END METHOD
+		
+		GET_subject()
+            DISPLAY subject
+        END METHOD
+		
+        ADD_STUDENT(st: Student)
+            IF SIZE OF students GREATER THAN OR EUQALS TO  maxSize THEN
+                DISPLAY "Error: Class is full"
+            ELSE IF st.schedule EUQALS TO schedule THEN
+                DISPLAY "Error: Student already enrolled in another class at same time"
+            ELSE
+                ADD st TO students
+            END IF
+        END METHOD
+
+        GET_STUDENTS()
+            DISPLAY students
+        END METHOD
+END CLASS
+
+
+CLASS Teacher
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE subjectSp: TEXT
+
+    CONSTRUCTOR(n: TEXT, sp: TEXT)
+        SET name TO n
+        SET subjectSp TO sp
+    END CONSTRUCTOR
+
+    METHODS
+		GET_id()
+            DISPLAY id
+        END METHOD
+		
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+		
+		GET_subjectSp()
+            DISPLAY subjectSp
+        END METHOD	
+END CLASS
+
+
+CLASS Student
+	ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+		PRIVATE schedule: TEXT
+        PRIVATE grades: LIST<TEXT>
+		
+	CONSTRUCTOR(n: TEXT, sc:LIST<TEXT>)
+        SET name TO n
+        SET schedule TO sc
+        SET grades TO LIST<TEXT>
+    END CONSTRUCTOR
+	
+	METHODS
+        ADD_GRADE(g: Grade)
+            ADD g TO grades
+        END METHOD
+		
+		CALCULATE_AVERAGE()
+			SET totalMarks TO 0
+            SET totalWeight TO 0
+            REPEAT WHILE i < SIZE OF grades
+				SET totalMarks TO totalMarks + (grades[i].score * grades[i].weight)
+				SET totalWeight TO totalWeight + grades[i].weight
+				SET i TO i + 1
+			END REPEAT
+
+			IF totalWeight > 0 THEN
+				DISPLAY totalMarks / totalWeight
+			ELSE
+				DISPLAY " No grades recorded"
+			END IF
+		END METHOD
+END CLASS
+		
+CLASS Grade
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE assessmentName: TEXT
+        PRIVATE score: NUMBER
+        PRIVATE weight: NUMBER
+
+    CONSTRUCTOR(a: TEXT, s: NUMBER, w: NUMBER)
+        SET assessmentName TO a
+        SET score TO s
+        SET weight TO w
+    END CONSTRUCTOR
+
+    METHODS
+        GET_SCORE()
+            DISPLAY score
+        END METHOD
+END CLASS
+
+CLASS Subject
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE syllabus: TEXT
+
+    CONSTRUCTOR(n: TEXT, sy: TEXT)
+        SET name TO n
+        SET syllabus TO sy
+    END CONSTRUCTOR
+
+    METHODS
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+END CLASS
+
+START
+    BEGIN
+        CREATE OBJECT teacher1 OF Teacher("Mr. Ahmed", "Mathematics")
+        CREATE OBJECT subject1 OF Subject("Algebra", "Equations, Functions, Graphs")
+
+        CREATE OBJECT class1 OF Classroom(teacher1, subject1, 2, "Mon 10am")
+
+        CREATE OBJECT student1 OF Student("Ali", "Mon 10am")
+        CREATE OBJECT student2 OF Student("Sara", "Tue 11am")
+  
+        class1.ADD_STUDENT(student1)   
+        class1.ADD_STUDENT(student2)   
+
+        CREATE OBJECT grade1 OF Grade("Quiz 1", 80, 0.3)
+        CREATE OBJECT grade2 OF Grade("Exam", 90, 0.7)
+
+        student2.ADD_GRADE(grade1)
+        student2.ADD_GRADE(grade2)
+
+        DISPLAY student2.CALCULATE_AVERAGE()
+    END
+STOP
+
+
+//Task 282: Insurance Policy 
+CLASS Policyholder 
+	ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE contactDetails: TEXT
+	
+	CONSTRUCTOR(n: TEXT, c:TEXT)
+		SET name TO name n
+		SET ContactDetails TO c
+		
+	END CONSTRUCTOR
+	
+	METHODS
+		GET_NAME()
+            DISPLAY name
+        END METHOD
+
+        GET_CONTACT()
+            DISPLAY contactDetails
+        END METHOD
+END CLASS
+
+
+CLASS Coverage
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE limit: NUMBER
+
+    CONSTRUCTOR(n: TEXT, l: NUMBER)
+        SET name TO n
+        SET limit TO l
+    END CONSTRUCTOR
+
+    METHODS
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+
+        GET_LIMIT()
+            DISPLAY limit
+        END METHOD
+END CLASS
+
+
