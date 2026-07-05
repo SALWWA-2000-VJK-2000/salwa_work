@@ -699,7 +699,7 @@ CLASS Student
 				SET i TO i + 1
 			END REPEAT
 
-			IF totalWeight > 0 THEN
+			IF totalWeight GREATER THAN 0 THEN
 				DISPLAY totalMarks / totalWeight
 			ELSE
 				DISPLAY " No grades recorded"
@@ -790,6 +790,50 @@ CLASS Policyholder
         END METHOD
 END CLASS
 
+CLASS Policy
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE policyholder: Policyholder
+        PRIVATE coverages: LIST<Coverage>
+        PRIVATE claims: LIST<Claim>
+
+    CONSTRUCTOR(ph: Policyholder)
+        SET policyholder TO ph
+        SET coverages TO  LIST[]
+        SET claims TO  LIST[]
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_COVERAGE(c: Coverage)
+            ADD c TO coverages
+        END METHOD
+
+        ADD_CLAIM(cl: Claim)
+            IF cl.amount LESS OR EUQALS TO cl.coverage.limit THEN
+                ADD cl TO claims
+            ELSE
+                DISPLAY "Error: Claim exceeds coverage limit"
+            END IF
+        END METHOD
+
+        CALCULATE_REMAINING_COVERAGE()
+            SET i TO 0
+			REPEAT WHILE i < SIZE OF coverages
+				SET c TO coverages[i]
+				SET used TO 0
+				SET j TO 0
+				REPEAT WHILE j < SIZE OF claims
+					SET cl TO claims[j]
+					IF cl.coverage EUQAL c AND cl.status EUQAL "Approved" THEN
+						SET used TO used + cl.amount
+					END IF
+					SET j TO j + 1
+				END REPEAT
+				DISPLAY c.name + (c.limit - used)
+				SET i TO i + 1
+			END REPEAT
+		END METHOD
+END CLASS
 
 CLASS Coverage
     ATTRIBUTES
@@ -813,3 +857,774 @@ CLASS Coverage
 END CLASS
 
 
+CLASS Claim
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE coverage: LIST<Coverage>
+        PRIVATE amount: NUMBER
+        PRIVATE status: TEXT  
+    CONSTRUCTOR(c: Coverage, a: NUMBER, s:TEXT)
+        SET coverage TO c
+        SET amount TO a
+        SET status TO LIST[]
+		 
+    END CONSTRUCTOR
+
+    METHODS
+        GET_AMOUNT()
+            DISPLAY amount
+        END METHOD
+
+        GET_STATUS()
+            DISPLAY status
+        END METHOD
+
+        UPDATE_STATUS(newStatus: TEXT)
+            IF status EUQAL TO "Filed" AND newStatus EUQAL TO "Under Review" THEN
+                SET status TO newStatus
+            ELSE IF status EUQAL TO "Under Review" AND (newStatus EUQAL TO "Approved" OR newStatus EUQAL TO "Rejected") THEN
+                SET status TO newStatus
+            ELSE
+                DISPLAY "Invalid status transition"
+            END IF
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT holder1 OF Policyholder("Ali", "99887766")
+        CREATE OBJECT policy1 OF Policy(holder1)
+        CREATE OBJECT coverage1 OF Coverage("Medical", 10000)
+        policy1.ADD_COVERAGE(coverage1)
+        CREATE OBJECT claim1 OF Claim(coverage1, 3000)
+        policy1.ADD_CLAIM(claim1)
+        CALL claim1.UPDATE_STATUS("Under Review")
+        CALL claim1.UPDATE_STATUS("Approved")
+        CREATE OBJECT claim2 OF Claim(coverage1, 12000)
+        policy1.ADD_CLAIM(claim2)   
+        policy1.CALCULATE_REMAINING_COVERAGE()
+    END
+STOP
+
+
+
+//Task 283: Car Dealership 
+
+CLASS MODEL
+    ATTRIBUTES
+        PRIVATE id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE basePrice: NUMBER
+
+    CONSTRUCTOR(n: TEXT, bp: NUMBER)
+        SET name TO n
+        SET basePrice TO bp
+    END CONSTRUCTOR
+
+    METHODS
+        GET_BASE_PRICE()
+            RETURN basePrice
+        END METHOD
+END CLASS
+
+CLASS Vehicle
+    ATTRIBUTES
+        PRIVATE id : NUMBER
+        PRIVATE model : LIST[model]
+        PRIVATE specifications : TEXT
+        PRIVATE listedPrice : NUMBER
+        PRIVATE available : BOOLEAN
+
+    CONSTRUCTOR(m : Model, specs : TEXT, lp : NUMBER)
+        SET model TO LIST[]
+        SET specifications TO specs
+        SET listedPrice TO lp
+        SET available TO TRUE
+    END CONSTRUCTOR
+
+    METHODS
+        VALIDATE_PRICE()
+            IF listedPrice LESS THAN model.GET_BASE_PRICE() THEN
+                DISPLAY "Error: Listed price below base price"
+                SET listedPrice TO model.GET_BASE_PRICE()
+            END IF
+        END METHOD
+
+        IS_AVAILABLE()
+            DISPLAY available
+        END METHOD
+
+        MARK_SOLD()
+            SET available TO FALSE
+        END METHOD
+
+        GET_PRICE()
+            DISPLAY listedPrice
+        END METHOD
+END CLASS
+
+
+CLASS Customer
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE contactDetails : TEXT
+    CONSTRUCTOR(n : TEXT, c : TEXT)
+        SET name TO n
+        SET contactDetails TO c
+    END CONSTRUCTOR
+    METHODS
+        PUBLIC GET_NAME()
+            RETURN name
+        END METHOD
+END CLASS
+
+
+CLASS AddOn
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE cost : NUMBER
+    CONSTRUCTOR(n : TEXT, c : NUMBER)
+        SET name TO n
+        SET cost TO c
+    END CONSTRUCTOR
+    METHODS
+        PUBLIC GET_COST()
+            DISPLAY cost
+        END METHOD
+END CLASS
+
+CLASS Sale
+    ATTRIBUTES
+        PRIVATE customer : Customer
+        PRIVATE vehicle : Vehicle
+        PRIVATE agreedPrice : NUMBER
+        PRIVATE addOns : LIST<AddOn>
+
+    CONSTRUCTOR(c : Customer, v : Vehicle, ap : NUMBER)
+        SET customer TO c
+        SET vehicle TO v
+        SET agreedPrice TO ap
+        SET addOns TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        VALIDATE_SALE()
+            IF vehicle.IS_AVAILABLE() EUQALS FALSE THEN
+                DISPLAY "Error: Vehicle already sold"
+            ELSE
+                CALL vehicle.MARK_SOLD()
+                DISPLAY "Sale confirmed for " + customer.GET_NAME()
+            END IF
+        END METHOD
+
+        ADD_ADDON(a : AddOn)
+            ADD a TO addOns
+        END METHOD
+
+        CALCULATE_TOTAL()
+            SET total TO agreedPrice
+            SET i TO 0
+            REPEAT WHILE i < SIZE OF addOns
+                SET total TO 
+                SET i TO i + 1
+            END REPEAT
+            DISPLAY total
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT model1 OF Model("Sedan", 15000)
+
+		CREATE OBJECT vehicle1 OF Vehicle(model1, "Color: Red, Engine: 2.0L", 14000)
+		CALL vehicle1.VALIDATE_PRICE()
+
+		CREATE OBJECT customer1 OF Customer("Sara", "99887766")
+
+		CREATE OBJECT sale1 OF Sale(customer1, vehicle1, 16000)
+		CALL sale1.VALIDATE_SALE()
+
+		CREATE OBJECT addon1 OF AddOn("Extended Warranty", 1200)
+		CREATE OBJECT addon2 OF AddOn("Leather Seats", 800)
+
+		CALL sale1.ADD_ADDON(addon1)
+		CALL sale1.ADD_ADDON(addon2)
+
+		CALL sale1.CALCULATE_TOTAL()
+
+		CREATE OBJECT sale2 OF Sale(customer1, vehicle1, 17000)
+		CALL sale2.VALIDATE_SALE()
+	END
+STOP
+
+
+//Task 284:  Wedding Planning 
+
+CLASS Couple
+    ATTRIBUTES
+        PRIVATE names : TEXT
+        PRIVATE contactDetails : TEXT
+    CONSTRUCTOR(n : TEXT, c : TEXT)
+        SET names TO n
+        SET contactDetails TO c
+    END CONSTRUCTOR
+END CLASS
+
+CLASS Vendor
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE specialty : TEXT
+        PRIVATE contactDetails : TEXT
+        PRIVATE bookedDates : LIST<TEXT>
+    CONSTRUCTOR(n : TEXT, s : TEXT, c : TEXT)
+        SET name TO n
+        SET specialty TO s
+        SET contactDetails TO c
+        SET bookedDates TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        IS_AVAILABLE(d : TEXT)
+            IF d IN bookedDates THEN
+                RETURN FALSE
+            ELSE
+                RETURN TRUE
+            END IF
+        END METHOD
+        ASSIGN_TASK(d : TEXT)
+            ADD d TO bookedDates
+        END METHOD
+END CLASS
+
+CLASS Task
+    ATTRIBUTES
+        PRIVATE description : TEXT
+        PRIVATE cost : NUMBER
+        PRIVATE status : TEXT
+        PRIVATE vendor : Vendor
+    CONSTRUCTOR(desc : TEXT, c : NUMBER, v : Vendor)
+        SET description TO desc
+        SET cost TO c
+        SET vendor TO v
+        SET status TO "Pending"
+    END CONSTRUCTOR
+    METHODS
+        MARK_DONE()
+            SET status TO "Done"
+        END METHOD
+END CLASS
+
+CLASS Guest
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE contactDetails : TEXT
+    CONSTRUCTOR(n : TEXT, c : TEXT)
+        SET name TO n
+        SET contactDetails TO c
+    END CONSTRUCTOR
+END CLASS
+
+CLASS Event
+    ATTRIBUTES
+        PRIVATE couple : Couple
+        PRIVATE tasks : LIST<Task>
+        PRIVATE guests : LIST<Guest>
+        PRIVATE budget : NUMBER
+    CONSTRUCTOR(c : Couple, b : NUMBER)
+        SET couple TO c
+        SET budget TO b
+        SET tasks TO LIST []
+        SET guests TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        ADD_TASK(t : Task, d : TEXT)
+            IF CALCULATE_SPENDING() + t.cost LESS THAN budget THEN
+                DISPLAY "Error: Task exceeds budget"
+            ELSE IF t.vendor.IS_AVAILABLE(d) EUQALS TO FALSE THEN
+                DISPLAY "Error: Vendor not available"
+            ELSE
+                ADD t TO tasks
+                CALL t.vendor.ASSIGN_TASK(d)
+                DISPLAY "Task added: " + t.description
+            END IF
+        END METHOD
+
+        ADD_GUEST(g : Guest)
+            ADD g TO guests
+        END METHOD
+
+        CALCULATE_COMPLETION()
+            SET done TO 0
+            SET i TO 0
+            REPEAT WHILE i < SIZE OF tasks
+                IF tasks[i].status EQUALS TO "Done" THEN
+                    SET done TO done + 1
+                END IF
+                SET i TO i + 1
+            END REPEAT
+            DISPLAY (done / SIZE OF tasks) * 100
+        END METHOD
+
+        CALCULATE_SPENDING()
+            SET total TO 0
+            SET i TO 0
+            REPEAT WHILE i < SIZE OF tasks
+                SET total TO total + tasks[i].cost
+                SET i TO i + 1
+            END REPEAT
+            RETURN total
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT couple1 OF Couple("Ali & Sara", "99887766")
+		CREATE OBJECT event1 OF Event(couple1, 10000)
+
+		CREATE OBJECT vendor1 OF Vendor("SP1, "Flowers", "112233")
+		CREATE OBJECT vendor2 OF Vendor("SP2,"Music", "445566")
+
+		CREATE OBJECT task1 OF Task("Flower Decoration", 3000, vendor1)
+		CREATE OBJECT task2 OF Task("Live Band", 5000, vendor2)
+
+		CALL event1.ADD_TASK(task1, "2026-07-20")
+		CALL event1.ADD_TASK(task2, "2026-07-20")
+
+		CREATE OBJECT guest1 OF Guest("Omar", "778899")
+		CALL event1.ADD_GUEST(guest1)
+
+		CALL task1.MARK_DONE()
+
+		DISPLAY event1.CALCULATE_COMPLETION()
+		DISPLAY event1.CALCULATE_SPENDING()
+	END
+STOP
+
+
+Task 285: Concert Ticketing
+CLASS Artist
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE genre : TEXT
+    CONSTRUCTOR(n : TEXT, g : TEXT)
+        SET name TO n
+        SET genre TO g
+    END CONSTRUCTOR
+END CLASS
+
+CLASS Venue
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE seatingChart : LIST<TEXT>
+        PRIVATE bookedDates : LIST<TEXT>
+    CONSTRUCTOR(n : TEXT)
+        SET name TO n
+        SET seatingChart TO LIST []
+        SET bookedDates TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        IS_AVAILABLE(d : TEXT)
+            IF d IN bookedDates THEN
+                DISPLAY "Available"
+            ELSE
+                DISPLAY "Not Available"
+            END IF
+        END METHOD
+        BOOK_DATE(d : TEXT)
+            ADD d TO bookedDates
+        END METHOD
+END CLASS
+
+CLASS PriceTier
+    ATTRIBUTES
+        PRIVATE tierName : TEXT
+        PRIVATE price : NUMBER
+        PRIVATE capacity : NUMBER
+    CONSTRUCTOR(n : TEXT, p : NUMBER, c : NUMBER)
+        SET tierName TO n
+        SET price TO p
+        SET capacity TO c
+    END CONSTRUCTOR
+    METHODS
+        GET_PRICE()
+            DISPLAY price
+        END METHOD
+END CLASS
+
+CLASS Ticket
+    ATTRIBUTES
+        PRIVATE seatNumber : TEXT
+        PRIVATE tier : PriceTier
+        PRIVATE fan : Fan
+    CONSTRUCTOR(s : TEXT, t : PriceTier, f : Fan)
+        SET seatNumber TO s
+        SET tier TO t
+        SET fan TO f
+    END CONSTRUCTOR
+    METHODS
+        DESCRIBE()
+            DISPLAY "Seat " + seatNumber + " for " + fan.GET_NAME()
+        END METHOD
+END CLASS
+
+CLASS Fan
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE contactDetails : TEXT
+    CONSTRUCTOR(n : TEXT, c : TEXT)
+        SET name TO n
+        SET contactDetails TO c
+    END CONSTRUCTOR
+    METHODS
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+END CLASS
+
+CLASS Concert
+    ATTRIBUTES
+        PRIVATE artist : Artist
+        PRIVATE venue : Venue
+        PRIVATE date : TEXT
+        PRIVATE priceTiers : LIST<PriceTier>
+        PRIVATE tickets : LIST<Ticket>
+    CONSTRUCTOR(a : Artist, v : Venue, d : TEXT)
+        IF v.IS_AVAILABLE(d) EQUALS FALSE THEN
+            DISPLAY "Error: Venue already booked"
+        ELSE
+            SET artist TO a
+            SET venue TO v
+            SET date TO d
+            SET priceTiers TO LIST []
+            SET tickets TO LIST []
+            CALL v.BOOK_DATE(d)
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        ADD_TIER(t : PriceTier)
+            ADD t TO priceTiers
+        END METHOD
+
+        SELL_TICKET(seat : TEXT, tier : PriceTier, f : Fan)
+            SET i TO 0
+            REPEAT WHILE i < SIZE OF tickets
+                IF tickets[i].seatNumber EQUALS TO seat THEN
+                    DISPLAY "Error: Seat already sold"
+                END IF
+                SET i TO i + 1
+            END REPEAT
+            CREATE OBJECT newTicket OF Ticket(seat, tier, f)
+            ADD newTicket TO tickets
+            DISPLAY "Ticket sold to " + f.GET_NAME()
+        END METHOD
+
+        CALCULATE_REMAINING()
+            SET sold TO SIZE OF tickets
+            SET totalCapacity TO 0
+            SET i TO 0
+            REPEAT WHILE i < SIZE OF priceTiers
+                SET totalCapacity TO totalCapacity + priceTiers[i].capacity
+                SET i TO i + 1
+            END REPEAT
+            DISPLAY totalCapacity - sold
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT artist1 OF Artist("Coldplay", "Rock")
+		CREATE OBJECT venue1 OF Venue("Grand Arena")
+
+		CREATE OBJECT concert1 OF Concert(artist1, venue1, "2026-08-01")
+
+		CREATE OBJECT tier1 OF PriceTier("VIP", 200, 50)
+		CREATE OBJECT tier2 OF PriceTier("Regular", 100, 200)
+
+		CALL concert1.ADD_TIER(tier1)
+		CALL concert1.ADD_TIER(tier2)
+
+		CREATE OBJECT fan1 OF Fan("Sara", "99887766")
+		CREATE OBJECT fan2 OF Fan("Omar", "11223344")
+
+		CALL concert1.SELL_TICKET("A1", tier1, fan1)
+		CALL concert1.SELL_TICKET("A1", tier1, fan2)
+
+		DISPLAY concert1.CALCULATE_REMAINING()
+	END
+STOP
+
+
+//Task 286: Software Sprint 
+CLASS Developer
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE capacity : NUMBER
+        PRIVATE assignedTasks : LIST<Task>
+    CONSTRUCTOR(n : TEXT, c : NUMBER)
+        SET name TO n
+        SET capacity TO c
+        SET assignedTasks TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        IS_AVAILABLE()
+            IF SIZE OF assignedTasks LESS THAN capacity THEN
+               DISPLAY "AVAILABLE"
+            ELSE
+                DISPLAY "NOT AVAILABLE"
+            END IF
+        END METHOD
+        ASSIGN_TASK(t : Task)
+            IF IS_AVAILABLE() EQUALS TO  "AVAILABLE" THEN
+                ADD t TO assignedTasks
+                DISPLAY "Task assigned to " + name
+            ELSE
+                DISPLAY "Error: Developer at capacity"
+            END IF
+        END METHOD
+END CLASS
+
+CLASS Task
+    ATTRIBUTES
+        PRIVATE description : TEXT
+        PRIVATE status : TEXT
+        PRIVATE developer : Developer
+    CONSTRUCTOR(d : TEXT, dev : Developer)
+        SET description TO d
+        SET status TO "To Do"
+        SET developer TO dev
+    END CONSTRUCTOR
+    METHODS
+        UPDATE_STATUS(newStatus : TEXT)
+            IF status = EQUALS "To Do" AND newStatus EQUALS "In Progress" THEN
+                SET status TO newStatus
+            ELSE IF status EQUALS "In Progress" AND newStatus EQUALS "Review" THEN
+                SET status TO newStatus
+            ELSE IF status EQUALS "Review" AND newStatus EQUALS "Complete" THEN
+                SET status TO newStatus
+            ELSE
+                DISPLAY "Invalid status transition"
+            END IF
+        END METHOD
+        MARK_COMPLETE()
+            IF status EQUALS "Review" THEN
+                SET status TO "Complete"
+            ELSE
+                DISPLAY "Error: Task not ready for completion"
+            END IF
+        END METHOD
+END CLASS
+
+CLASS Sprint
+    ATTRIBUTES
+        PRIVATE tasks : LIST<Task>
+        PRIVATE startDate : TEXT
+        PRIVATE endDate : TEXT
+    CONSTRUCTOR(s : TEXT, e : TEXT)
+        SET startDate TO s
+        SET endDate TO e
+        SET tasks TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        ADD_TASK(t : Task)
+            IF t.developer.IS_AVAILABLE() EQUAL "AVAILABLE" THEN
+                ADD t TO tasks
+                CALL t.developer.ASSIGN_TASK(t)
+            ELSE
+                DISPLAY "Error: Developer cannot take more tasks"
+            END IF
+        END METHOD
+        CALCULATE_PROGRESS()
+            SET done TO 0
+            SET i TO 0
+            REPEAT WHILE i < SIZE OF tasks
+                IF tasks[i].status EQUALS "Complete" THEN
+                    SET done TO done + 1
+                END IF
+                SET i TO i + 1
+            END REPEAT
+            DISPLAY (done / SIZE OF tasks) * 100
+        END METHOD
+END CLASS
+
+CLASS Backlog
+    ATTRIBUTES
+        PRIVATE tasks : LIST<Task>
+    CONSTRUCTOR()
+        SET tasks TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        ADD_TASK(t : Task)
+            ADD t TO tasks
+        END METHOD
+        REMOVE_TASK(t : Task)
+            REMOVE t FROM tasks
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT dev1 OF Developer("Ali", 2)
+		CREATE OBJECT dev2 OF Developer("Sara", 1)
+
+		CREATE OBJECT sprint1 OF Sprint("2026-07-05", "2026-07-20")
+
+		CREATE OBJECT task1 OF Task("task1", dev1)
+		CREATE OBJECT task2 OF Task("task2", dev1)
+		CREATE OBJECT task3 OF Task("task3", dev2)
+
+		CALL sprint1.ADD_TASK(task1)
+		CALL sprint1.ADD_TASK(task2)
+		CALL sprint1.ADD_TASK(task3)
+
+		CALL task1.UPDATE_STATUS("In Progress")
+		CALL task1.UPDATE_STATUS("Review")
+		CALL task1.MARK_COMPLETE()
+
+		DISPLAY sprint1.CALCULATE_PROGRESS()
+	END
+STOP
+
+
+//Task 287: Farm Management 
+CLASS Crop
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE expectedYield : NUMBER
+        PRIVATE waterNeed : NUMBER
+    CONSTRUCTOR(n : TEXT, y : NUMBER, w : NUMBER)
+        SET name TO n
+        SET expectedYield TO y
+        SET waterNeed TO w
+    END CONSTRUCTOR
+    METHODS
+        GET_EXPECTED_YIELD()
+            RETURN expectedYield
+        END METHOD
+        GET_WATER_NEED()
+            RETURN waterNeed
+        END METHOD
+END CLASS
+
+CLASS Worker
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE dailyLimit : NUMBER
+        PRIVATE assignedActivities : LIST<Activity>
+    CONSTRUCTOR(n : TEXT, l : NUMBER)
+        SET name TO n
+        SET dailyLimit TO l
+        SET assignedActivities TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        IS_AVAILABLE(d : TEXT)
+            SET count TO 0
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF assignedActivities
+                IF assignedActivities[i].date EQUALS d THEN
+                    SET count TO count + 1
+                END IF
+                SET i TO i + 1
+            END REPEAT
+            IF count LESS THAN dailyLimit THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+        ASSIGN_ACTIVITY(a : Activity)
+            ADD a TO assignedActivities
+        END METHOD
+END CLASS
+
+CLASS Activity
+    ATTRIBUTES
+        PRIVATE type : TEXT
+        PRIVATE date : TEXT
+        PRIVATE worker : Worker
+    CONSTRUCTOR(t : TEXT, d : TEXT, w : Worker)
+        SET type TO t
+        SET date TO d
+        SET worker TO w
+    END CONSTRUCTOR
+    METHODS
+        DESCRIBE()
+            DISPLAY type + " on " + date + " by " + worker.name
+        END METHOD
+END CLASS
+
+CLASS Field
+    ATTRIBUTES
+        PRIVATE crop : Crop
+        PRIVATE activities : LIST<Activity>
+    CONSTRUCTOR()
+        SET activities TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        PLANT_CROP(c : Crop)
+            SET crop TO c
+        END METHOD
+        ADD_ACTIVITY(a : Activity)
+            IF a.type EQUALS "Watering" AND crop.GET_WATER_NEED() LESS THAN OR EQUALS 0 THEN
+                DISPLAY "Error: Crop does not need watering"
+            ELSE IF a.worker.IS_AVAILABLE(a.date) EQUALS FALSE THEN
+                DISPLAY "Error: Worker at daily limit"
+            ELSE
+                ADD a TO activities
+                CALL a.worker.ASSIGN_ACTIVITY(a)
+                DISPLAY "Activity logged: " + a.type
+            END IF
+        END METHOD
+        CALCULATE_YIELD()
+            SET properCare TO 0
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF activities
+                IF activities[i].type EQUALS "Watering" OR activities[i].type EQUALS "Fertilizing" THEN
+                    SET properCare TO properCare + 1
+                END IF
+                SET i TO i + 1
+            END REPEAT
+            RETURN crop.GET_EXPECTED_YIELD() * (properCare DIVIDED BY SIZE OF activities)
+        END METHOD
+END CLASS
+
+CLASS Farm
+    ATTRIBUTES
+        PRIVATE fields : LIST<Field>
+        PRIVATE workers : LIST<Worker>
+    CONSTRUCTOR()
+        SET fields TO LIST []
+        SET workers TO LIST []
+    END CONSTRUCTOR
+    METHODS
+        ADD_FIELD(f : Field)
+            ADD f TO fields
+        END METHOD
+        ADD_WORKER(w : Worker)
+            ADD w TO workers
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT farm1 OF Farm()
+
+		CREATE OBJECT crop1 OF Crop("Wheat", 1000, 2)
+		CREATE OBJECT field1 OF Field()
+		CALL field1.PLANT_CROP(crop1)
+		CALL farm1.ADD_FIELD(field1)
+
+		CREATE OBJECT worker1 OF Worker("Ali", 2)
+		CALL farm1.ADD_WORKER(worker1)
+
+		CREATE OBJECT activity1 OF Activity("activity1", "2026-07-05", worker1)
+		CALL field1.ADD_ACTIVITY(activity1)
+
+		CREATE OBJECT activity2 OF Activity("activity2", "2026-07-05", worker1)
+		CALL field1.ADD_ACTIVITY(activity2)
+
+		CREATE OBJECT activity3 OF Activity("activity3", "2026-07-05", worker1)
+		CALL field1.ADD_ACTIVITY(activity3)
+
+		DISPLAY field1.CALCULATE_YIELD()
+	END
+STOP
