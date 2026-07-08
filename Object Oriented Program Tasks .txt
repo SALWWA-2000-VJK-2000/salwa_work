@@ -1,12 +1,10 @@
-//Task 278: Veterinary Clinic
-
 CLASS VETERINARY
     ATTRIBUTES
         PRIVATE id : NUMBER
         PRIVATE name : TEXT
         PRIVATE owners : LIST<OWNER>
         PRIVATE pets : LIST<PET>
-        PRIVATE visits : LIST<VISIT> 
+        PRIVATE visits : LIST<VISIT>
 
     CONSTRUCTOR(n : TEXT)
         SET name TO n
@@ -48,7 +46,6 @@ CLASS VETERINARY
             END IF
         END METHOD
 END CLASS
-
 
 CLASS OWNER
     ATTRIBUTES

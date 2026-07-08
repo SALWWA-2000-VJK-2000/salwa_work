@@ -1,0 +1,599 @@
+//Task 288: Bookshop
+CLASS book
+	ATTRIBUTES
+        PRIVATE title : TEXT
+        PRIVATE author : TEXT
+        PRIVATE price : NUMBER
+		PRIVATE genre: TEXT
+    CONSTRUCTOR(t : TEXT, a : TEXT, p : NUMBER, g: TEXT)
+        SET title TO t
+        SET author TO a
+        SET price TO p
+		SET genre TO g
+    END CONSTRUCTOR
+
+	METHODS
+		GET_TITLE()
+            RETURN title
+        END METHOD
+
+        GET_PRICE()
+            RETURN price
+        END METHOD
+END CLASS
+
+
+CLASS customer
+	ATTRIBUTES
+		PRIVATE name : TEXT
+		PRIVATE contactDetails : TEXT
+        PRIVATE purchaseHistory : LIST<Sale>
+		
+	CONSTRUCTOR(n : TEXT, c : TEXT)
+        SET name TO n
+        SET contactDetails TO c
+        SET purchaseHistory TO LIST []
+    END CONSTRUCTOR
+	
+	
+	 METHODS
+        ADD_PURCHASE(s : Sale)
+            ADD s TO purchaseHistory
+        END METHOD
+
+        VIEW_PURCHASE_HISTORY()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF purchaseHistory
+                DISPLAY "Purchased: " + purchaseHistory[i].book.GET_TITLE() + 
+                        " for " + purchaseHistory[i].soldPrice
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+CLASS Sale
+    ATTRIBUTES
+        PRIVATE book : Book
+        PRIVATE soldPrice : NUMBER
+        PRIVATE customer : Customer
+
+    CONSTRUCTOR(b : Book, sp : NUMBER, c : Customer)
+        SET book TO b
+        SET soldPrice TO sp
+        SET customer TO c
+    END CONSTRUCTOR
+
+    METHODS
+        DESCRIBE()
+            DISPLAY customer.name + " bought " + book.GET_TITLE() + 
+                    " for " + soldPrice
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT book1 OF BOOK("Book1", "author1", 10 , "Fiction")
+		CREATE OBJECT book2 OF BOOK("Book2", "author2", 30 ,"Programming")
+
+		CREATE OBJECT customer1 OF CUSTOMER("Ali", "99887766")
+
+		CREATE OBJECT sale1 OF SALE(book1, 10, customer1)
+		customer1.ADD_PURCHASE(sale1)
+		sale1.DESCRIBE()
+
+		CREATE OBJECT sale2 OF SALE(book2, 28, customer1)
+		customer1.ADD_PURCHASE(sale2)
+		sale2.DESCRIBE()
+
+		DISPLAY "Purchase History for " + customer1.name
+		customer1.VIEW_PURCHASE_HISTORY()
+	END
+STOP
+
+
+//Task 289: Online Exam Platform
+
+CLASS Question
+	ATTRIBUTES
+        PRIVATE text : TEXT
+        PRIVATE correctAnswer : TEXT
+        PRIVATE points : NUMBER
+		
+	CONSTRUCTOR(q : TEXT, ans : TEXT, p : NUMBER)
+        SET text TO q
+        SET correctAnswer TO ans
+        SET points TO p
+    END CONSTRUCTOR
+
+    METHODS
+        GET_POINTS()
+            RETURN points
+        END METHOD
+
+        CHECK_ANSWER(a : TEXT)
+            IF a EQUALS correctAnswer THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+CLASS Exam
+    ATTRIBUTES
+        PRIVATE title : TEXT
+        PRIVATE questions : LIST<Question>
+        PRIVATE timeLimit : NUMBER   
+
+    CONSTRUCTOR(t : TEXT, tl : NUMBER)
+        SET title TO t
+        SET timeLimit TO tl
+        SET questions TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_QUESTION(q : Question)
+            ADD q TO questions
+        END METHOD
+
+        GET_TIME_LIMIT()
+            RETURN timeLimit
+        END METHOD
+END CLASS
+
+
+CLASS Student
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE attempts : LIST<Attempt>
+
+    CONSTRUCTOR(n : TEXT)
+        SET name TO n
+        SET attempts TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_ATTEMPT(a : Attempt)
+            ADD a TO attempts
+        END METHOD
+
+        VIEW_ATTEMPTS()
+			SET i TO 0
+			REPEAT WHILE i LESS THAN SIZE OF attempts
+				SET attemptNumber TO i + 1
+				DISPLAY "Attempt: " + attemptNumber + ": Score = " + attempts[i].score
+				SET i TO i + 1
+			END REPEAT
+END METHOD
+
+END CLASS
+
+
+CLASS Attempt
+    ATTRIBUTES
+        PRIVATE exam : Exam
+        PRIVATE student : Student
+        PRIVATE answers : LIST<TEXT>
+        PRIVATE score : NUMBER
+        PRIVATE startTime : NUMBER   
+        PRIVATE timeLimit : NUMBER
+
+    CONSTRUCTOR(e : Exam, s : Student, st : NUMBER)
+        SET exam TO e
+        SET student TO s
+        SET startTime TO st
+        SET timeLimit TO e.GET_TIME_LIMIT()
+        SET answers TO LIST []
+        SET score TO 0
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_ANSWER(a : TEXT, currentTime : NUMBER)
+            IF currentTime - startTime GREATER THAN timeLimit THEN
+                DISPLAY "Error: Time limit exceeded"
+            ELSE
+                ADD a TO answers
+            END IF
+        END METHOD
+
+        CALCULATE_SCORE()
+            SET total TO 0
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF exam.questions
+                IF exam.questions[i].CHECK_ANSWER(answers[i]) EQUALS TRUE THEN
+                    SET total TO total + exam.questions[i].GET_POINTS()
+                END IF
+                SET i TO i + 1
+            END REPEAT
+            SET score TO total
+            RETURN score
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT exam1 OF EXAM("Math Exam", 30)
+
+		CREATE OBJECT q1 OF QUESTION("2+2?", "4", 5)
+		CREATE OBJECT q2 OF QUESTION("5*3?", "15", 5)
+		exam1.ADD_QUESTION(q1)
+		exam1.ADD_QUESTION(q2)
+
+		CREATE OBJECT student1 OF STUDENT("Ali")
+
+		CREATE OBJECT attempt1 OF ATTEMPT(exam1, student1, 0)
+		attempt1.ADD_ANSWER("4", 10)
+		attempt1.ADD_ANSWER("15", 15)
+		DISPLAY "Score: " + attempt1.CALCULATE_SCORE()
+
+		student1.ADD_ATTEMPT(attempt1)
+
+		CREATE OBJECT attempt2 OF ATTEMPT(exam1, student1, 40)
+		attempt2.ADD_ANSWER("4", 75)   
+		attempt2.ADD_ANSWER("12", 76)
+		DISPLAY "Score: " + attempt2.CALCULATE_SCORE()
+
+		student1.ADD_ATTEMPT(attempt2)
+
+		student1.VIEW_ATTEMPTS()
+	END
+STOP
+
+
+//Task 290: Taxi Company
+
+CLASS Driver
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE vehicle : TEXT
+        PRIVATE trips : LIST<Trip>
+
+    CONSTRUCTOR(n : TEXT, v : TEXT)
+        SET name TO n
+        SET vehicle TO v
+        SET trips TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_TRIP(t : Trip)
+            ADD t TO trips
+        END METHOD
+
+        VIEW_TRIPS()
+			SET i TO 0
+			REPEAT WHILE i LESS THAN SIZE OF trips
+				SET tripNumber TO i + 1
+				DISPLAY  tripNumber +  trips[i].pickup + trips[i].dropoff + trips[i].fare
+				SET i TO i + 1
+			END REPEAT
+		END METHOD
+
+END CLASS
+
+
+CLASS Passenger
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE contactDetails : TEXT
+        PRIVATE tripHistory : LIST<Trip>
+
+    CONSTRUCTOR(n : TEXT, c : TEXT)
+        SET name TO n
+        SET contactDetails TO c
+        SET tripHistory TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_TRIP(t : Trip)
+            ADD t TO tripHistory
+        END METHOD
+
+        VIEW_TRIP_HISTORY()
+			SET i TO 0
+			REPEAT WHILE i LESS THAN SIZE OF tripHistory
+				SET tripNumber TO i + 1
+				DISPLAY tripNumber +  tripHistory[i].pickup  + tripHistory[i].dropoff + tripHistory[i].fare
+				SET i TO i + 1
+			END REPEAT
+		END METHOD
+
+END CLASS
+
+CLASS Trip
+    ATTRIBUTES
+        PRIVATE pickup : TEXT
+        PRIVATE dropoff : TEXT
+        PRIVATE fare : NUMBER
+        PRIVATE driver : Driver
+        PRIVATE passenger : Passenger
+
+    CONSTRUCTOR(pu : TEXT, do : TEXT, f : NUMBER, d : Driver, pa : Passenger)
+        SET pickup TO pu
+        SET dropoff TO do
+        SET fare TO f
+        SET driver TO d
+        SET passenger TO pa
+    END CONSTRUCTOR
+
+    METHODS
+        DESCRIBE()
+            DISPLAY passenger.name + " rode with " + driver.name + 
+                    " from " + pickup + " to " + dropoff + 
+                    " Fare = " + fare
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT driver1 OF DRIVER("Ali", "Toyota Camry")
+		CREATE OBJECT passenger1 OF PASSENGER("Sara", "99887766")
+
+		CREATE OBJECT trip1 OF TRIP("Airport", "City Center", 15, driver1, passenger1)
+		driver1.ADD_TRIP(trip1)
+		passenger1.ADD_TRIP(trip1)
+		trip1.DESCRIBE()
+
+		CREATE OBJECT trip2 OF TRIP("Mall", "University", 10, driver1, passenger1)
+		driver1.ADD_TRIP(trip2)
+		passenger1.ADD_TRIP(trip2)
+		trip2.DESCRIBE()
+
+		DISPLAY "Driver Trips:"
+		driver1.VIEW_TRIPS()
+
+		DISPLAY "Passenger Trip History:"
+		passenger1.VIEW_TRIP_HISTORY()
+	END
+STOP
+
+//Task 291: Co-working Space
+
+CLASS MembershipPlan
+    ATTRIBUTES
+        PRIVATE planName : TEXT
+        PRIVATE monthlyQuota : NUMBER
+
+    CONSTRUCTOR(pn : TEXT, q : NUMBER)
+        SET planName TO pn
+        SET monthlyQuota TO q
+    END CONSTRUCTOR
+
+    METHODS
+        GET_QUOTA()
+            RETURN monthlyQuota
+        END METHOD
+END CLASS
+
+
+CLASS Member
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE contactDetails : TEXT
+        PRIVATE plan : MembershipPlan
+        PRIVATE bookings : LIST<Booking>
+
+    CONSTRUCTOR(n : TEXT, c : TEXT, p : MembershipPlan)
+        SET name TO n
+        SET contactDetails TO c
+        SET plan TO p
+        SET bookings TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_BOOKING(b : Booking)
+            ADD b TO bookings
+        END METHOD
+
+        CALCULATE_USED_HOURS()
+            SET total TO 0
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF bookings
+                SET total TO total + bookings[i].duration
+                SET i TO i + 1
+            END REPEAT
+            RETURN total
+        END METHOD
+
+        CALCULATE_REMAINING_HOURS()
+            RETURN plan.GET_QUOTA() - CALCULATE_USED_HOURS()
+        END METHOD
+
+        VIEW_BOOKINGS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF bookings
+                SET bookingNumber TO i + 1
+                DISPLAY "Booking #" + bookingNumber + ": Room " + bookings[i].room.name + 
+                        " on " + bookings[i].date + " for " + bookings[i].duration + " hours"
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+CLASS Room
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE bookings : LIST<Booking>
+
+    CONSTRUCTOR(n : TEXT)
+        SET name TO n
+        SET bookings TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        IS_AVAILABLE(d : TEXT, start : NUMBER, end : NUMBER)
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF bookings
+                IF bookings[i].date EQUALS d THEN
+                    IF (start LESS THAN bookings[i].endTime) AND (end GREATER THAN bookings[i].startTime) THEN
+                        RETURN FALSE
+                    END IF
+                END IF
+                SET i TO i + 1
+            END REPEAT
+            RETURN TRUE
+        END METHOD
+
+        ADD_BOOKING(b : Booking)
+            ADD b TO bookings
+        END METHOD
+END CLASS
+
+
+CLASS Booking
+    ATTRIBUTES
+        PRIVATE room : Room
+        PRIVATE member : Member
+        PRIVATE date : TEXT
+        PRIVATE startTime : NUMBER
+        PRIVATE endTime : NUMBER
+        PRIVATE duration : NUMBER
+
+    CONSTRUCTOR(r : Room, m : Member, d : TEXT, st : NUMBER, et : NUMBER)
+        SET room TO r
+        SET member TO m
+        SET date TO d
+        SET startTime TO st
+        SET endTime TO et
+        SET duration TO et - st
+    END CONSTRUCTOR
+
+    METHODS
+        CONFIRM()
+            IF member.CALCULATE_USED_HOURS() + duration GREATER THAN member.plan.GET_QUOTA() THEN
+                DISPLAY "Error: Booking exceeds member quota"
+            ELSE IF room.IS_AVAILABLE(date, startTime, endTime) EQUALS FALSE THEN
+                DISPLAY "Error: Room not available at this time"
+            ELSE
+                member.ADD_BOOKING(this)
+                room.ADD_BOOKING(this)
+                DISPLAY "Booking confirmed for " + member.name + " in room " + room.name
+            END IF
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT plan1 OF MEMBERSHIPPLAN("Standard", 10)
+		CREATE OBJECT member1 OF MEMBER("Ali", "99887766", plan1)
+		CREATE OBJECT room1 OF ROOM("Meeting Room A")
+		CREATE OBJECT booking1 OF BOOKING(room1, member1, "2026-07-10", 9, 11)
+		booking1.CONFIRM()
+		CREATE OBJECT booking2 OF BOOKING(room1, member1, "2026-07-10", 10, 12)
+		booking2.CONFIRM()
+		CREATE OBJECT booking3 OF BOOKING(room1, member1, "2026-07-15", 13, 17)
+		booking3.CONFIRM()
+		DISPLAY "Remaining hours for " + member1.name + ": " + member1.CALCULATE_REMAINING_HOURS()
+		member1.VIEW_BOOKINGS()
+	END
+STOP
+
+
+//Task 289: Personal Trainer Bookings 
+CLASS Client
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE contactDetails : TEXT
+        PRIVATE sessions : LIST<Session>
+
+    CONSTRUCTOR(n : TEXT, c : TEXT)
+        SET name TO n
+        SET contactDetails TO c
+        SET sessions TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_SESSION(s : Session)
+            ADD s TO sessions
+        END METHOD
+
+        VIEW_SESSIONS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF sessions
+                SET sessionNumber TO i + 1
+                DISPLAY "Session " + sessionNumber + ": " + sessions[i].date + 
+                        " (" + sessions[i].duration + " hrs, " + sessions[i].type + ")"
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+CLASS Session
+    ATTRIBUTES
+        PRIVATE date : TEXT
+        PRIVATE duration : NUMBER
+        PRIVATE type : TEXT
+        PRIVATE client : Client
+
+    CONSTRUCTOR(d : TEXT, dur : NUMBER, t : TEXT, c : Client)
+        SET date TO d
+        SET duration TO dur
+        SET type TO t
+        SET client TO c
+    END CONSTRUCTOR
+
+    METHODS
+        DESCRIBE()
+            DISPLAY client.name + " booked " + type + " session on " + date + 
+                    " for " + duration + " hours"
+        END METHOD
+END CLASS
+
+
+CLASS Trainer
+    ATTRIBUTES
+        PRIVATE name : TEXT
+        PRIVATE sessions : LIST<Session>
+
+    CONSTRUCTOR(n : TEXT)
+        SET name TO n
+        SET sessions TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_SESSION(s : Session)
+            ADD s TO sessions
+        END METHOD
+
+        VIEW_ALL_SESSIONS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF sessions
+                SET sessionNumber TO i + 1
+                DISPLAY "Trainer Session " + sessionNumber + ": " + sessions[i].client.name + 
+                        " on " + sessions[i].date + " (" + sessions[i].type + ")"
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT trainer1 OF TRAINER("Ahmed")
+
+		CREATE OBJECT client1 OF CLIENT("Sara", "99887766")
+		CREATE OBJECT client2 OF CLIENT("Omar", "11223344")
+
+		CREATE OBJECT session1 OF SESSION("2026-07-10", 1, "Cardio", client1)
+		client1.ADD_SESSION(session1)
+		trainer1.ADD_SESSION(session1)
+		session1.DESCRIBE()
+
+		CREATE OBJECT session2 OF SESSION("2026-07-12", 2, "Strength Training", client2)
+		client2.ADD_SESSION(session2)
+		trainer1.ADD_SESSION(session2)
+		session2.DESCRIBE()
+
+		DISPLAY "Client Sessions:"
+		client1.VIEW_SESSIONS()
+		client2.VIEW_SESSIONS()
+
+		DISPLAY "Trainer Schedule:"
+		trainer1.VIEW_ALL_SESSIONS()
+	END
+STOP
