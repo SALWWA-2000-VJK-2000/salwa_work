@@ -1,0 +1,140 @@
+//Task 293: Shape Drawing App  
+CLASS Shape
+	ATTRIBUTES
+		color: TEXT
+		position: TEXT 
+	
+	CONSTRUCTOR(c: TEXT, p:TEXT)
+		SET color TO c
+		SET position TO p 
+		
+	END CONSTRUCTOR 
+	
+	METHODS
+        CALCULATE_AREA()
+            DISPLAY " shape area"
+        END METHOD
+
+        CALCULATE_PERIMETER()
+            DISPLAY " shape perimeter"
+        END METHOD
+END CLASS
+
+
+CLASS Circle INHERITS Shape 
+	ATTRIBUTES
+		radius: NUMBER
+		 
+	CONSTRUCTOR(c : TEXT, p : TEXT, r : NUMBER)
+        SUPER(c, p)
+        SET radius TO r
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_AREA()
+            RETURN 3.14 * radius * radius
+        END METHOD
+
+        OVERRIDE CALCULATE_PERIMETER()
+            RETURN 2 * 3.14 * radius
+        END METHOD
+END CLASS
+
+
+CLASS Rectangle INHERITS Shape 
+	ATTRIBUTES
+		side1: NUMBER
+		side2: NUMBER
+		side3: NUMBER
+		
+	CONSTRUCTOR(c : TEXT, p : TEXT, s1: NUMBER, s2: NUMBER, s3: NUMBER)
+        SUPER(c, p)
+        SET side1 TO s1
+        SET side2 TO s2
+		SET side3 TO s3
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_AREA()
+			SET s TO (sideA + sideB + sideC) / 2
+			SET part1 TO s - sideA
+			SET part2 TO s - sideB
+			SET part3 TO s - sideC
+			SET product TO s * part1 * part2 * part3
+			SET area TO SQRT(product)
+			RETURN area
+		END METHOD
+
+END CLASS
+
+
+CLASS Triangle INHERITS Shape 
+	ATTRIBUTES
+		radius: NUMBER
+		 
+	CONSTRUCTOR(c : TEXT, p : TEXT, r : NUMBER)
+        SUPER(c, p)
+        SET radius TO r
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_AREA()
+            RETURN 3.14 * radius * radius
+        END METHOD
+
+        OVERRIDE CALCULATE_PERIMETER()
+            RETURN 2 * 3.14 * radius
+        END METHOD
+END CLASS
+
+
+CLASS Canvas
+    ATTRIBUTES
+         shapes : LIST<Shape>
+    CONSTRUCTOR()
+        SET shapes TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_SHAPE(s : Shape)
+            ADD s TO shapes
+        END METHOD
+
+        VIEW_SHAPES()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF shapes
+                SET shapeNumber TO i + 1
+                DISPLAY  shapeNumber +  shapes[i].position  + shapes[i].color
+                DISPLAY "Area = " + shapes[i].CALCULATE_AREA()
+                DISPLAY "Perimeter = " + shapes[i].CALCULATE_PERIMETER()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT canvas1 OF CANVAS()
+
+		CREATE OBJECT circle1 OF CIRCLE("Red", "Left", 5)
+		CREATE OBJECT rect1 OF RECTANGLE("Blue", "Center", 4, 6)
+		CREATE OBJECT tri1 OF TRIANGLE("Green", "Right", 3, 4, 5)
+
+		canvas1.ADD_SHAPE(circle1)
+		canvas1.ADD_SHAPE(rect1)
+		canvas1.ADD_SHAPE(tri1)
+
+		canvas1.VIEW_SHAPES()
+	END
+STOP
+
+
+//Task 294: Employee Payroll 
+CLASS employee
+	ATTRIBUTES 
+		id: TEXT
+		name: TEXT
+		
+
+
