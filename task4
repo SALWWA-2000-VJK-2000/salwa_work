@@ -73,8 +73,8 @@ END CLASS
 
 START
 	BEGIN
-		CREATE OBJECT book1 OF BOOK("Book1", "author1", "Fiction", 10)
-		CREATE OBJECT book2 OF BOOK("Book2", "author2", "Programming", 30)
+		CREATE OBJECT book1 OF BOOK("Book1", "author1", 10 , "Fiction")
+		CREATE OBJECT book2 OF BOOK("Book2", "author2", 30 ,"Programming")
 
 		CREATE OBJECT customer1 OF CUSTOMER("Ali", "99887766")
 
