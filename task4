@@ -37,6 +37,10 @@ CLASS customer
 	
 	
 	 METHODS
+		GET_NAME()
+			RETURN name
+		END METHOD
+		
         ADD_PURCHASE(s : Sale)
             ADD s TO purchaseHistory
         END METHOD
@@ -66,15 +70,14 @@ CLASS Sale
 
     METHODS
         DESCRIBE()
-            DISPLAY customer.name + " bought " + book.GET_TITLE() + 
-                    " for " + soldPrice
+            DISPLAY customer.GET_NAME() + " bought " + book.GET_TITLE() + " for " + soldPrice
         END METHOD
 END CLASS
 
 START
 	BEGIN
-		CREATE OBJECT book1 OF BOOK("Book1", "author1", 10 , "Fiction")
-		CREATE OBJECT book2 OF BOOK("Book2", "author2", 30 ,"Programming")
+		CREATE OBJECT book1 OF BOOK("Book1", "author1",10 , "Fiction")
+		CREATE OBJECT book2 OF BOOK("Book2", "author2",30, "Programming")
 
 		CREATE OBJECT customer1 OF CUSTOMER("Ali", "99887766")
 
@@ -86,7 +89,7 @@ START
 		customer1.ADD_PURCHASE(sale2)
 		sale2.DESCRIBE()
 
-		DISPLAY "Purchase History for " + customer1.name
+		DISPLAY "Purchase History for " + customer1.GET_NAME()
 		customer1.VIEW_PURCHASE_HISTORY()
 	END
 STOP
@@ -117,6 +120,26 @@ CLASS Question
             ELSE
                 RETURN FALSE
             END IF
+        END METHOD
+END CLASS
+
+CLASS Answer
+    ATTRIBUTES
+        PRIVATE question : Question
+        PRIVATE selectedAnswer : TEXT
+
+    CONSTRUCTOR(q : Question, sa : TEXT)
+        SET this.question TO q
+        SET this.selectedAnswer TO sa
+    END CONSTRUCTOR
+
+    METHODS
+        GET_QUESTION()
+            RETURN question
+        END METHOD
+
+        GET_SELECTED()
+            RETURN selectedAnswer
         END METHOD
 END CLASS
 
@@ -162,11 +185,10 @@ CLASS Student
 			SET i TO 0
 			REPEAT WHILE i LESS THAN SIZE OF attempts
 				SET attemptNumber TO i + 1
-				DISPLAY "Attempt: " + attemptNumber + ": Score = " + attempts[i].score
+				DISPLAY "Attempt:" + attemptNumber + ": Score = " + attempts[i].score
 				SET i TO i + 1
 			END REPEAT
-END METHOD
-
+		END METHOD
 END CLASS
 
 
@@ -197,18 +219,19 @@ CLASS Attempt
             END IF
         END METHOD
 
-        CALCULATE_SCORE()
-            SET total TO 0
-            SET i TO 0
-            REPEAT WHILE i LESS THAN SIZE OF exam.questions
-                IF exam.questions[i].CHECK_ANSWER(answers[i]) EQUALS TRUE THEN
-                    SET total TO total + exam.questions[i].GET_POINTS()
-                END IF
-                SET i TO i + 1
-            END REPEAT
-            SET score TO total
-            RETURN score
-        END METHOD
+		CALCULATE_SCORE()
+			SET total TO 0
+			SET i TO 0
+			REPEAT WHILE i LESS THAN SIZE OF answers
+				IF answers[i].GET_QUESTION().CHECK_ANSWER(answers[i].GET_SELECTED()) EQUALS TRUE THEN
+					SET total TO total + answers[i].GET_QUESTION().GET_POINTS()
+				END IF
+				SET i TO i + 1
+			END REPEAT
+			SET score TO total
+			RETURN score
+		END METHOD
+
 END CLASS
 
 
@@ -257,6 +280,14 @@ CLASS Driver
     END CONSTRUCTOR
 
     METHODS
+		GET_NAME()
+            RETURN name
+        END METHOD
+
+        GET_VEHICLE()
+            RETURN vehicle
+        END METHOD
+		
         ADD_TRIP(t : Trip)
             ADD t TO trips
         END METHOD
@@ -265,10 +296,12 @@ CLASS Driver
 			SET i TO 0
 			REPEAT WHILE i LESS THAN SIZE OF trips
 				SET tripNumber TO i + 1
-				DISPLAY  tripNumber +  trips[i].pickup + trips[i].dropoff + trips[i].fare
+				DISPLAY "Trip " + tripNumber + ": " + trips[i].pickup + 
+						" → " + trips[i].dropoff + " ($" + trips[i].fare + ")"
 				SET i TO i + 1
 			END REPEAT
 		END METHOD
+
 
 END CLASS
 
@@ -286,6 +319,14 @@ CLASS Passenger
     END CONSTRUCTOR
 
     METHODS
+		GET_NAME()
+            RETURN name
+        END METHOD
+
+        GET_CONTACT()
+            RETURN contactDetails
+        END METHOD
+		
         ADD_TRIP(t : Trip)
             ADD t TO tripHistory
         END METHOD
@@ -319,10 +360,9 @@ CLASS Trip
 
     METHODS
         DESCRIBE()
-            DISPLAY passenger.name + " rode with " + driver.name + 
-                    " from " + pickup + " to " + dropoff + 
-                    " Fare = " + fare
-        END METHOD
+			DISPLAY passenger.GET_NAME() + " rode with " + driver.GET_NAME() + 
+					" from " + pickup + " to " + dropoff + " Fare = $" + fare
+		END METHOD
 END CLASS
 
 
@@ -383,6 +423,14 @@ CLASS Member
     END CONSTRUCTOR
 
     METHODS
+		 GET_NAME()
+            RETURN name
+        END METHOD
+
+        GET_CONTACT()
+            RETURN contactDetails
+        END METHOD
+		
         ADD_BOOKING(b : Booking)
             ADD b TO bookings
         END METHOD
@@ -424,11 +472,15 @@ CLASS Room
     END CONSTRUCTOR
 
     METHODS
+		GET_NAME()
+            RETURN name
+        END METHOD
+		
         IS_AVAILABLE(d : TEXT, start : NUMBER, end : NUMBER)
             SET i TO 0
             REPEAT WHILE i LESS THAN SIZE OF bookings
                 IF bookings[i].date EQUALS d THEN
-                    IF (start LESS THAN bookings[i].endTime) AND (end GREATER THAN bookings[i].startTime) THEN
+                    IF ((start LESS THAN bookings[i].endTime) AND (end GREATER THAN bookings[i].startTime) THEN
                         RETURN FALSE
                     END IF
                 END IF
@@ -459,20 +511,24 @@ CLASS Booking
         SET startTime TO st
         SET endTime TO et
         SET duration TO et - st
+		IF duration LESS THAN OR EQUAL TO 0 THEN
+			DISPLAY "Error: Invalid booking duration"
+		END IF
     END CONSTRUCTOR
 
     METHODS
         CONFIRM()
-            IF member.CALCULATE_USED_HOURS() + duration GREATER THAN member.plan.GET_QUOTA() THEN
-                DISPLAY "Error: Booking exceeds member quota"
-            ELSE IF room.IS_AVAILABLE(date, startTime, endTime) EQUALS FALSE THEN
-                DISPLAY "Error: Room not available at this time"
-            ELSE
-                member.ADD_BOOKING(this)
-                room.ADD_BOOKING(this)
-                DISPLAY "Booking confirmed for " + member.name + " in room " + room.name
-            END IF
-        END METHOD
+			IF member.CALCULATE_USED_HOURS() + duration GREATER THAN member.plan.GET_QUOTA() THEN
+				DISPLAY "Error: Booking exceeds member quota"
+			ELSE IF room.IS_AVAILABLE(date, startTime, endTime) EQUALS FALSE THEN
+				DISPLAY "Error: Room not available at this time"
+			ELSE
+				member.ADD_BOOKING(this)
+				room.ADD_BOOKING(this)
+				DISPLAY "Booking confirmed for " + member.GET_NAME() + " in room " + room.GET_NAME()
+			END IF
+		END METHOD
+
 END CLASS
 
 
@@ -493,7 +549,7 @@ START
 STOP
 
 
-//Task 289: Personal Trainer Bookings 
+//Task 292: Personal Trainer Bookings
 CLASS Client
     ATTRIBUTES
         PRIVATE name : TEXT
@@ -507,6 +563,14 @@ CLASS Client
     END CONSTRUCTOR
 
     METHODS
+		GET_NAME()
+            RETURN name
+        END METHOD
+
+        GET_CONTACT()
+            RETURN contactDetails
+        END METHOD
+		
         ADD_SESSION(s : Session)
             ADD s TO sessions
         END METHOD
@@ -538,10 +602,27 @@ CLASS Session
     END CONSTRUCTOR
 
     METHODS
-        DESCRIBE()
-            DISPLAY client.name + " booked " + type + " session on " + date + 
-                    " for " + duration + " hours"
+		GET_DATE()
+            RETURN date
         END METHOD
+
+        GET_DURATION()
+            RETURN duration
+        END METHOD
+
+        GET_TYPE()
+            RETURN type
+        END METHOD
+
+        GET_CLIENT()
+            RETURN client
+        END METHOD
+		
+        DESCRIBE()
+			DISPLAY client.GET_NAME() + " booked " + type + 
+					" session on " + date + " for " + duration + " hours"
+		END METHOD
+
 END CLASS
 
 
@@ -556,6 +637,10 @@ CLASS Trainer
     END CONSTRUCTOR
 
     METHODS
+		GET_NAME()
+            RETURN name
+        END METHOD
+		
         ADD_SESSION(s : Session)
             ADD s TO sessions
         END METHOD
