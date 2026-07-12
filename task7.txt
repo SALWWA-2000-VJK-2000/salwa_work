@@ -1,0 +1,617 @@
+//Task 308: Insurance Claims Processing 
+CLASS Claim
+	ATTRIBUTES
+        claimNumber : NUMBER
+		dateFiled: 
+		status: TEXT
+
+    CONSTRUCTOR(pl : TEXT, dl : TEXT, r : Route, dist : NUMBER, rate : NUMBER, pc : NUMBER)
+        SUPER(pl, dl, r, dist, rate)
+        SET passengerCount TO pc
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_PAYOUT()
+            SET totalFare TO distance * ratePerKm
+            RETURN totalFare / passengerCount
+        END METHOD
+END CLASS
+
+//Task 309: University Library Loans (Medium)
+CLASS ConditionReport
+    ATTRIBUTES
+        notes : TEXT
+
+    CONSTRUCTOR(n : TEXT)
+        SET notes TO n
+    END CONSTRUCTOR
+
+    METHODS
+        VIEW_REPORT()
+            DISPLAY notes
+        END METHOD
+END CLASS
+ 
+CLASS LoanItem
+    ATTRIBUTES
+        title : TEXT
+        barcode : TEXT
+        loanDuration : NUMBER
+        condition : ConditionReport
+
+    CONSTRUCTOR(t : TEXT, b : TEXT, ld : NUMBER, cr : ConditionReport)
+        SET title TO t
+        SET barcode TO b
+        SET loanDuration TO ld
+        SET condition TO cr
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_LATE_FEE(daysOverdue : NUMBER)
+            RETURN 0
+        END METHOD
+
+        DISPLAY_ITEM()
+            DISPLAY title
+            DISPLAY barcode
+            DISPLAY loanDuration
+            condition.VIEW_REPORT()
+        END METHOD
+END CLASS
+
+CLASS StandardBook INHERITS LoanItem
+    ATTRIBUTES
+        feePerDay : NUMBER
+
+    CONSTRUCTOR(t : TEXT, b : TEXT, ld : NUMBER, cr : ConditionReport, fpd : NUMBER)
+        SUPER(t, b, ld, cr)
+        SET feePerDay TO fpd
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_LATE_FEE(daysOverdue : NUMBER)
+            RETURN daysOverdue * feePerDay
+        END METHOD
+END CLASS
+
+CLASS ReferenceTextbook INHERITS LoanItem
+    ATTRIBUTES
+        highFeePerDay : NUMBER
+
+    CONSTRUCTOR(t : TEXT, b : TEXT, ld : NUMBER, cr : ConditionReport, hfpd : NUMBER)
+        SUPER(t, b, ld, cr)
+        SET highFeePerDay TO hfpd
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_LATE_FEE(daysOverdue : NUMBER)
+            RETURN daysOverdue * highFeePerDay
+        END METHOD
+END CLASS
+
+
+CLASS JournalIssue INHERITS ReferenceTextbook
+    ATTRIBUTES
+        renewable : BOOLEAN
+
+    CONSTRUCTOR(t : TEXT, b : TEXT, ld : NUMBER, cr : ConditionReport, hfpd : NUMBER)
+        SUPER(t, b, ld, cr, hfpd)
+        SET renewable TO TRUE
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_LATE_FEE(daysOverdue : NUMBER)
+            SET fee TO SUPER.CALCULATE_LATE_FEE(daysOverdue)
+            SET renewable TO FALSE
+            RETURN fee
+        END METHOD
+
+        CHECK_RENEWABLE()
+            RETURN renewable
+        END METHOD
+END CLASS
+
+
+CLASS StudentAccount
+    ATTRIBUTES
+        studentName : TEXT
+        loans : LIST<LoanItem>
+
+    CONSTRUCTOR(sn : TEXT)
+        SET studentName TO sn
+        SET loans TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_LOAN(l : LoanItem)
+            ADD l TO loans
+        END METHOD
+
+        VIEW_LOANS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF loans
+                loans[i].DISPLAY_ITEM()
+                DISPLAY "Late Fee (5 days overdue) = " + loans[i].CALCULATE_LATE_FEE(5)
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT report1 OF ConditionReport("report1")
+		CREATE OBJECT book1 OF StandardBook("book1", "B123", 14, report1, 1)
+
+		CREATE OBJECT report2 OF ConditionReport("report2")
+		CREATE OBJECT ref1 OF ReferenceTextbook("ref1", "R456", 1, report2, 5)
+
+		CREATE OBJECT report3 OF ConditionReport("report3")
+		CREATE OBJECT journal1 OF JournalIssue("journal1", "J789", 1, report3, 5)
+
+		CREATE OBJECT student1 OF StudentAccount("Salma")
+		student1.ADD_LOAN(book1)
+		student1.ADD_LOAN(ref1)
+		student1.ADD_LOAN(journal1)
+
+		student1.VIEW_LOANS()
+		DISPLAY "Journal renewable? " + journal1.CHECK_RENEWABLE()
+	END
+STOP
+
+
+//Task 310: Theme Park Ride Queues (Medium)
+CLASS SafetyInspectionLog
+    ATTRIBUTES
+        date : TEXT
+        outcome : TEXT
+
+    CONSTRUCTOR(d : TEXT, o : TEXT)
+        SET date TO d
+        SET outcome TO o
+    END CONSTRUCTOR
+
+    METHODS
+        VIEW_LOG()
+            DISPLAY date
+            DISPLAY outcome
+        END METHOD
+END CLASS
+
+CLASS Ride
+    ATTRIBUTES
+        name : TEXT
+        location : TEXT
+        inspection : SafetyInspectionLog
+
+    CONSTRUCTOR(n : TEXT, l : TEXT, log : SafetyInspectionLog)
+        SET name TO n
+        SET location TO l
+        SET inspection TO log
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_WAIT_TIME(peopleInLine : NUMBER)
+            RETURN 0
+        END METHOD
+
+        DISPLAY_RIDE()
+            DISPLAY name
+            DISPLAY location
+            inspection.VIEW_LOG()
+        END METHOD
+END CLASS
+
+CLASS RollerCoaster INHERITS Ride
+    ATTRIBUTES
+        carCapacity : NUMBER
+        cycleTime : NUMBER
+
+    CONSTRUCTOR(n : TEXT, l : TEXT, log : SafetyInspectionLog, cc : NUMBER, ct : NUMBER)
+        SUPER(n, l, log)
+        SET carCapacity TO cc
+        SET cycleTime TO ct
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_WAIT_TIME(peopleInLine : NUMBER)
+            SET trainsNeeded TO CEIL(peopleInLine / carCapacity)
+            RETURN trainsNeeded * cycleTime
+        END METHOD
+END CLASS
+
+CLASS WaterRide INHERITS Ride
+    ATTRIBUTES
+        boatCapacity : NUMBER
+        cycleTime : NUMBER
+        loadingDelay : NUMBER
+
+    CONSTRUCTOR(n : TEXT, l : TEXT, log : SafetyInspectionLog, bc : NUMBER, ct : NUMBER, ld : NUMBER)
+        SUPER(n, l, log)
+        SET boatCapacity TO bc
+        SET cycleTime TO ct
+        SET loadingDelay TO ld
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_WAIT_TIME(peopleInLine : NUMBER)
+            SET launchesNeeded TO CEIL(peopleInLine / boatCapacity)
+            RETURN launchesNeeded * (cycleTime + loadingDelay)
+        END METHOD
+END CLASS
+
+CLASS VIPAccessRide INHERITS RollerCoaster
+    METHODS
+        OVERRIDE CALCULATE_WAIT_TIME(peopleInLine : NUMBER, vipGuests : NUMBER)
+            SET standardGuests TO peopleInLine - vipGuests
+            SET standardWait TO SUPER.CALCULATE_WAIT_TIME(standardGuests)
+            SET vipWait TO cycleTime
+            DISPLAY "VIP Wait Time = " + vipWait
+            DISPLAY "Standard Wait Time = " + standardWait
+            RETURN 0
+        END METHOD
+END CLASS
+
+CLASS Park
+    ATTRIBUTES
+        rides : LIST<Ride>
+		
+    CONSTRUCTOR()
+        SET rides TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_RIDE(r : Ride)
+            ADD r TO rides
+        END METHOD
+
+        VIEW_RIDES()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF rides
+                rides[i].DISPLAY_RIDE()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT log1 OF SafetyInspectionLog("10-JUL-2026", "Passed")
+		CREATE OBJECT coaster1 OF RollerCoaster("coaster1", "Zone A", log1, 20, 5)
+
+		CREATE OBJECT log2 OF SafetyInspectionLog("09-JUL-2026", "Passed")
+		CREATE OBJECT water1 OF WaterRide("water1", "Zone B", log2, 15, 7, 3)
+
+		CREATE OBJECT log3 OF SafetyInspectionLog("08-JUL-2026", "Passed")
+		CREATE OBJECT vip1 OF VIPAccessRide("vip1", "Zone C", log3, 25, 4)
+
+		CREATE OBJECT park1 OF Park()
+		park1.ADD_RIDE(coaster1)
+		park1.ADD_RIDE(water1)
+		park1.ADD_RIDE(vip1)
+
+		park1.VIEW_RIDES()
+
+		DISPLAY "Coaster wait time : " + coaster1.CALCULATE_WAIT_TIME(100)
+		DISPLAY "Water ride wait time : " + water1.CALCULATE_WAIT_TIME(60)
+		vip1.CALCULATE_WAIT_TIME(80, 10)
+	END
+STOP
+
+//Task 311: Freelancer Invoicing Platform (Medium)
+
+CLASS PaymentTerms
+    ATTRIBUTES
+        dueDate : TEXT
+        lateInterestRate : NUMBER
+
+    CONSTRUCTOR(dd : TEXT, lir : NUMBER)
+        SET dueDate TO dd
+        SET lateInterestRate TO lir
+    END CONSTRUCTOR
+
+    METHODS
+        VIEW_TERMS()
+            DISPLAY dueDate
+            DISPLAY lateInterestRate
+        END METHOD
+END CLASS
+
+
+CLASS Invoice
+    ATTRIBUTES
+        invoiceNumber : TEXT
+        dateIssued : TEXT
+        clientName : TEXT
+        paymentTerms : PaymentTerms
+
+    CONSTRUCTOR(inum : TEXT, di : TEXT, cn : TEXT, pt : PaymentTerms)
+        SET invoiceNumber TO inum
+        SET dateIssued TO di
+        SET clientName TO cn
+        SET paymentTerms TO pt
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_TOTAL()
+            RETURN 0
+        END METHOD
+
+        DISPLAY_INVOICE()
+            DISPLAY invoiceNumber
+            DISPLAY dateIssued
+            DISPLAY clientName
+            paymentTerms.VIEW_TERMS()
+        END METHOD
+END CLASS
+
+
+CLASS FixedPriceInvoice INHERITS Invoice
+    ATTRIBUTES
+        projectFee : NUMBER
+
+    CONSTRUCTOR(inum : TEXT, di : TEXT, cn : TEXT, pt : PaymentTerms, pf : NUMBER)
+        SUPER(inum, di, cn, pt)
+        SET projectFee TO pf
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_TOTAL()
+            RETURN projectFee
+        END METHOD
+END CLASS
+
+
+CLASS HourlyInvoice INHERITS Invoice
+    ATTRIBUTES
+        hours : LIST<NUMBER>
+        approvals : LIST<BOOLEAN>
+        hourlyRate : NUMBER
+
+    CONSTRUCTOR(inum : TEXT, di : TEXT, cn : TEXT, pt : PaymentTerms, hr : NUMBER)
+        SUPER(inum, di, cn, pt)
+        SET hours TO LIST []
+        SET approvals TO LIST []
+        SET hourlyRate TO hr
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_HOUR(h : NUMBER, approved : BOOLEAN)
+            ADD h TO hours
+            ADD approved TO approvals
+        END METHOD
+
+        OVERRIDE CALCULATE_TOTAL()
+            SET total TO 0
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF hours
+                IF approvals[i] EQUALS TRUE THEN
+                    SET total TO total + (hours[i] * hourlyRate)
+                END IF
+                SET i TO i + 1
+            END REPEAT
+            RETURN total
+        END METHOD
+END CLASS
+
+CLASS RetainerInvoice INHERITS FixedPriceInvoice
+    ATTRIBUTES
+        includedHours : NUMBER
+        extraHourlyRate : NUMBER
+        extraHours : NUMBER
+
+    CONSTRUCTOR(inum : TEXT, di : TEXT, cn : TEXT, pt : PaymentTerms, pf : NUMBER, ih : NUMBER, ehr : NUMBER)
+        SUPER(inum, di, cn, pt, pf)
+        SET includedHours TO ih
+        SET extraHourlyRate TO ehr
+        SET extraHours TO 0
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_EXTRA_HOURS(h : NUMBER)
+            SET extraHours TO extraHours + h
+        END METHOD
+
+        OVERRIDE CALCULATE_TOTAL()
+            SET baseFee TO SUPER.CALCULATE_TOTAL()
+            SET extraFee TO extraHours * extraHourlyRate
+            RETURN baseFee + extraFee
+        END METHOD
+END CLASS
+
+
+CLASS FreelancerAccount
+    ATTRIBUTES
+        freelancerName : TEXT
+        invoices : LIST<Invoice>
+
+    CONSTRUCTOR(fn : TEXT)
+        SET freelancerName TO fn
+        SET invoices TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_INVOICE(inv : Invoice)
+            ADD inv TO invoices
+        END METHOD
+
+        VIEW_INVOICES()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF invoices
+                invoices[i].DISPLAY_INVOICE()
+                DISPLAY "Total Due = " + invoices[i].CALCULATE_TOTAL()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT terms1 OF PaymentTerms("31-JUL-2026", 5)
+		CREATE OBJECT inv1 OF FixedPriceInvoice("FP101", "12-JUL-2026", "Client A", terms1, 2000)
+
+		CREATE OBJECT terms2 OF PaymentTerms("01-AUG-2026", 3)
+		CREATE OBJECT inv2 OF HourlyInvoice("HR202", "11-JUL-2026", "Client B", terms2, 50)
+		inv2.ADD_HOUR(10, TRUE)
+		inv2.ADD_HOUR(5, FALSE)
+		inv2.ADD_HOUR(8, TRUE)
+
+		CREATE OBJECT terms3 OF PaymentTerms("05-AUG-2026", 4)
+		CREATE OBJECT inv3 OF RetainerInvoice("RT303", "10-JUL-2026", "Client C", terms3, 1500, 20, 60)
+		inv3.ADD_EXTRA_HOURS(5)
+
+		CREATE OBJECT account1 OF FreelancerAccount("Salwa")
+		account1.ADD_INVOICE(inv1)
+		account1.ADD_INVOICE(inv2)
+		account1.ADD_INVOICE(inv3)
+
+		account1.VIEW_INVOICES()
+	END
+STOP
+
+//Task 312: Data Center Server Management (Medium)
+CLASS HardwareSpecification
+    ATTRIBUTES
+        cpu : TEXT
+        ram : TEXT
+        storage : TEXT
+
+    CONSTRUCTOR(c : TEXT, r : TEXT, s : TEXT)
+        SET cpu TO c
+        SET ram TO r
+        SET storage TO s
+    END CONSTRUCTOR
+
+    METHODS
+        VIEW_SPEC()
+            DISPLAY cpu
+            DISPLAY ram
+            DISPLAY storage
+        END METHOD
+END CLASS
+
+CLASS Server
+    ATTRIBUTES
+        serialNumber : TEXT
+        uptime : NUMBER
+        hardware : HardwareSpecification
+
+    CONSTRUCTOR(sn : TEXT, up : NUMBER, hw : HardwareSpecification)
+        SET serialNumber TO sn
+        SET uptime TO up
+        SET hardware TO hw
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_LOAD()
+            RETURN 0
+        END METHOD
+
+        DISPLAY_SERVER()
+            DISPLAY serialNumber
+            DISPLAY uptime
+            hardware.VIEW_SPEC()
+        END METHOD
+END CLASS
+
+CLASS WebServer INHERITS Server
+    ATTRIBUTES
+        activeConnections : NUMBER
+        maxConnections : NUMBER
+
+    CONSTRUCTOR(sn : TEXT, up : NUMBER, hw : HardwareSpecification, ac : NUMBER, mc : NUMBER)
+        SUPER(sn, up, hw)
+        SET activeConnections TO ac
+        SET maxConnections TO mc
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_LOAD()
+            RETURN (activeConnections / maxConnections) * 100
+        END METHOD
+END CLASS
+
+CLASS DatabaseServer INHERITS Server
+    ATTRIBUTES
+        queryThroughput : NUMBER
+        maxQueriesPerSecond : NUMBER
+
+    CONSTRUCTOR(sn : TEXT, up : NUMBER, hw : HardwareSpecification, qt : NUMBER, mqs : NUMBER)
+        SUPER(sn, up, hw)
+        SET queryThroughput TO qt
+        SET maxQueriesPerSecond TO mqs
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_LOAD()
+            IF queryThroughput >= maxQueriesPerSecond THEN
+                DISPLAY "Server at full capacity, no new connections allowed"
+                RETURN 100
+            ELSE
+                RETURN (queryThroughput / maxQueriesPerSecond) * 100
+            END IF
+        END METHOD
+END CLASS
+
+CLASS CacheServer INHERITS DatabaseServer
+    ATTRIBUTES
+        cacheHitRatio : NUMBER
+
+    CONSTRUCTOR(sn : TEXT, up : NUMBER, hw : HardwareSpecification, qt : NUMBER, mqs : NUMBER, chr : NUMBER)
+        SUPER(sn, up, hw, qt, mqs)
+        SET cacheHitRatio TO chr
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_LOAD()
+            SET baseLoad TO SUPER.CALCULATE_LOAD()
+            SET adjustedLoad TO baseLoad * (1 - (cacheHitRatio / 100))
+            RETURN adjustedLoad
+        END METHOD
+END CLASS
+
+CLASS Rack
+    ATTRIBUTES
+        rackID : TEXT
+        servers : LIST<Server>
+
+    CONSTRUCTOR(rid : TEXT)
+        SET rackID TO rid
+        SET servers TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_SERVER(s : Server)
+            ADD s TO servers
+        END METHOD
+
+        VIEW_SERVERS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF servers
+                servers[i].DISPLAY_SERVER()
+                DISPLAY "Load = " + servers[i].CALCULATE_LOAD() + "%"
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT hw1 OF HardwareSpecification("hw1", "64GB", "2TB SSD")
+		CREATE OBJECT web1 OF WebServer("WS101", 120, hw1, 300, 1000)
+
+		CREATE OBJECT hw2 OF HardwareSpecification("hw2", "128GB", "4TB SSD")
+		CREATE OBJECT db1 OF DatabaseServer("DB202", 200, hw2, 800, 1000)
+
+		CREATE OBJECT hw3 OF HardwareSpecification("hw3", "256GB", "8TB SSD")
+		CREATE OBJECT cache1 OF CacheServer("CS303", 150, hw3, 900, 1000, 70)
+
+		CREATE OBJECT rack1 OF Rack("Rack-A")
+		rack1.ADD_SERVER(web1)
+		rack1.ADD_SERVER(db1)
+		rack1.ADD_SERVER(cache1)
+
+		rack1.VIEW_SERVERS()
+	END
+STOP
