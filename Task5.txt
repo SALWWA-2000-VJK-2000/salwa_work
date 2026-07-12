@@ -24,7 +24,6 @@ END CLASS
 CLASS Circle INHERITS Shape 
 	ATTRIBUTES
 		radius: NUMBER
-		 
 	CONSTRUCTOR(c : TEXT, p : TEXT, r : NUMBER)
         SUPER(c, p)
         SET radius TO r
@@ -46,44 +45,46 @@ CLASS Rectangle INHERITS Shape
 		side1: NUMBER
 		side2: NUMBER
 		side3: NUMBER
+		height : NUMBER 
 		
-	CONSTRUCTOR(c : TEXT, p : TEXT, s1: NUMBER, s2: NUMBER, s3: NUMBER)
+	CONSTRUCTOR(c : TEXT, p : TEXT, s1: NUMBER, s2: NUMBER, s3: NUMBER, h: NUMBER)
         SUPER(c, p)
         SET side1 TO s1
         SET side2 TO s2
 		SET side3 TO s3
+		SET height TO h
     END CONSTRUCTOR
 
     METHODS
         OVERRIDE CALCULATE_AREA()
-			SET s TO (sideA + sideB + sideC) / 2
-			SET part1 TO s - sideA
-			SET part2 TO s - sideB
-			SET part3 TO s - sideC
-			SET product TO s * part1 * part2 * part3
-			SET area TO SQRT(product)
-			RETURN area
-		END METHOD
+            RETURN (1 / 2) * sideA * height
+        END METHOD
+		
+		OVERRIDE CALCULATE_PERIMETER()
+            RETURN sideA + sideB + sideC
+        END METHOD
 
 END CLASS
 
 
-CLASS Triangle INHERITS Shape 
+CLASS Rectangle INHERITS Shape 
 	ATTRIBUTES
-		radius: NUMBER
-		 
-	CONSTRUCTOR(c : TEXT, p : TEXT, r : NUMBER)
+		width: NUMBER
+		height: NUMBER
+		
+	CONSTRUCTOR(c : TEXT, p : TEXT, w: NUMBER, h: NUMBER)
         SUPER(c, p)
-        SET radius TO r
+        SET width TO w
+		SET height TO h
     END CONSTRUCTOR
 
     METHODS
         OVERRIDE CALCULATE_AREA()
-            RETURN 3.14 * radius * radius
+            RETURN width * height
         END METHOD
 
         OVERRIDE CALCULATE_PERIMETER()
-            RETURN 2 * 3.14 * radius
+            RETURN 2(width *height)
         END METHOD
 END CLASS
 
@@ -101,7 +102,7 @@ CLASS Canvas
         END METHOD
 
         VIEW_SHAPES()
-            SET i TO 0
+            SET i T  
             REPEAT WHILE i LESS THAN SIZE OF shapes
                 SET shapeNumber TO i + 1
                 DISPLAY  shapeNumber +  shapes[i].position  + shapes[i].color
@@ -119,7 +120,7 @@ START
 
 		CREATE OBJECT circle1 OF CIRCLE("Red", "Left", 5)
 		CREATE OBJECT rect1 OF RECTANGLE("Blue", "Center", 4, 6)
-		CREATE OBJECT tri1 OF TRIANGLE("Green", "Right", 3, 4, 5)
+		CREATE OBJECT tri1 OF TRIANGLE("Green", "Right", 3, 4, 5, 20)
 
 		canvas1.ADD_SHAPE(circle1)
 		canvas1.ADD_SHAPE(rect1)
@@ -131,10 +132,1375 @@ STOP
 
 
 //Task 294: Employee Payroll 
-CLASS employee
+CLASS Employee
 	ATTRIBUTES 
 		id: TEXT
 		name: TEXT
+		hireDate : TEXT
+		
+	CONSTRUCTOR(n : TEXT, h : TEXT)
+        SET name TO n
+        SET hireDate TO h
+    END CONSTRUCTOR
+	
+	METHODS
+        GET_NAME()
+            RETURN name
+        END METHOD
+
+        GET_HIRE_DATE()
+            RETURN hireDate
+        END METHOD
+
+        CALCULATE_PAY()
+            DISPLAY "Generic employee pay"
+            RETURN 0
+        END METHOD
+END CLASS
+
+CLASS SalariedEmployee INHERITS Employee
+	ATTRIBUTES
+		monthlySalary : NUMBER
+	
+	CONSTRUCTOR(n : TEXT, h : TEXT, ms: NUMBER)
+        SUPER(n, h)
+		SET monthlySalary TO ms
+    END CONSTRUCTOR
+
+	METHODS
+        OVERRIDE CALCULATE_PAY()
+            RETURN monthlySalary
+        END METHOD
+END CLASS
+
+CLASS HourlyEmployee INHERITS Employee
+	ATTRIBUTES 
+		hourlyRate: NUMBER
+		hoursWorked : NUMBER
+		
+	CONSTRUCTOR(n : TEXT, h : TEXT, hr: NUMBER, hw: NUMBER)
+       SUPER(n,h)
+	   SET hourlyRate TO hr
+	   SET hoursWorked TO hw
+    END CONSTRUCTOR
+	
+	METHODS
+        OVERRIDE CALCULATE_PAY()
+            RETURN hourlyRate * hoursWorked
+        END METHOD
+
+        GET_HIRE_DATE()
+            RETURN hireDate
+        END METHOD
+END CLASS
+
+
+CLASS CommissionEmployee INHERITS Employee
+	ATTRIBUTES
+		basePay: NUMBER
+		sales: NUMBER
+		commissionRate: NUMBER
+	
+	CONSTRUCTOR(n : TEXT, h : TEXT, base: NUMBER, s: NUMBER, cr:NUMBER)
+       SUPER(n,h)
+	   SET basePay TO base
+	   SET sales TO s
+	   SET commissionRate TO cr
+    END CONSTRUCTOR
+	
+	OVERRIDE CALCULATE_PAY()
+            RETURN hourlyRate * hoursWorked
+        END METHOD
+END CLASS
+
+CLASS Payroll
+	ATTRIBUTES
+		employee: LIST<Employee>
+		
+	CONSTRUCTOR()
+		SET employee TO LIST []
+	END CONSTRUCTOR
+	
+	METHODS
+		ADD_EMPLOYEE(e : Employee)
+            ADD e TO employees
+        END METHOD
+		
+		PROCESS_PAYROLL()
+            FOR EACH emp IN employees
+                DISPLAY emp.GET_NAME() + " (ID: " + emp.GET_ID() + 
+                        ") Monthly Pay = $" + emp.CALCULATE_PAY()
+            END FOR
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT payroll1 OF PAYROLL()
+
+		CREATE OBJECT emp1 OF SALARIED_EMPLOYEE("Sara", "2020-01-15", 3000)
+		CREATE OBJECT emp2 OF HOURLY_EMPLOYEE("Ali", "2021-03-10", 20, 160)
+		CREATE OBJECT emp3 OF COMMISSION_EMPLOYEE("Omar", "2019-07-01", 1500, 5000, 0.10)
+
+		payroll1.ADD_EMPLOYEE(emp1)
+		payroll1.ADD_EMPLOYEE(emp2)
+		payroll1.ADD_EMPLOYEE(emp3)
+
+		DISPLAY "Payroll Processing:"
+		payroll1.PROCESS_PAYROLL()
+	END
+STOP
+
+//Task 295: Zoo Animal Enclosures 
+CLASS Animal 
+	ATTRIBUTES
+		name: TEXT
+		age: NUMBER
+		dietType: TEXT
+	
+	CONSTRUCTOR(n : TEXT, a : NUMBER, d:TEXT  )
+		SET name TO n
+		SET age TO a
+		SET dietType TO d
+	END CONSTRUCTOR
+	
+	METHODS
+		GET_NAME()
+			RETURN name
+		END METHOD
+		
+		GET_AGE()
+			RETURN age
+		END METHOD
+		
+		GET_DIET()
+			RETURN dietType
+		END METHOD
+		
+		MAKE_SOUND()
+            DISPLAY " animal sound"
+        END METHOD
+
+        DESCRIBE_MOVEMENT()
+            DISPLAY " animal movement"
+        END METHOD
+END CLASS
+
+CLASS Bird INHERITS Animal
+	CONSTRUCTOR(n : TEXT, a : NUMBER, d:TEXT  )
+		 SUPER(n, a, d)
+	END CONSTRUCTOR
+	
+	METHODS
+        OVERRIDE MAKE_SOUND()
+            DISPLAY name + " chirps"
+        END METHOD
+
+        OVERRIDE DESCRIBE_MOVEMENT()
+            DISPLAY name + " flies in the sky"
+        END METHOD
+
+        LAY_EGGS()
+            DISPLAY name + " lays eggs"
+        END METHOD
+END CLASS
+
+CLASS Fish INHERITS Animal
+CONSTRUCTOR(n : TEXT, a : NUMBER, d:TEXT  )
+		 SUPER(n, a, d)
+	END CONSTRUCTOR
+	
+	METHODS
+        OVERRIDE MAKE_SOUND()
+            DISPLAY name + " makes bubbling sounds"
+        END METHOD
+
+        OVERRIDE DESCRIBE_MOVEMENT()
+            DISPLAY name + " swims in water"
+        END METHOD
+
+        BREATH_GILLS()
+            DISPLAY name + " breathes through gills"
+        END METHOD
+END CLASS
+
+CLASS Mammal INHERITS Animal
+	ATTRIBUTES
+		fur: BOOLEAN 
+		liveBirth : BOOLEAN
+	
+	CONSTRUCTOR(n : TEXT, a : NUMBER, d : TEXT, f : BOOLEAN, lb : BOOLEAN)
+        SUPER(n, a, d)
+        SET fur TO f
+        SET liveBirth TO lb
+    END CONSTRUCTOR
+	
+	METHODS
+        OVERRIDE MAKE_SOUND()
+            DISPLAY name + " growls"
+        END METHOD
+
+        OVERRIDE DESCRIBE_MOVEMENT()
+            DISPLAY name + " walks or runs"
+        END METHOD
+
+        DESCRIBE_STATE()
+            IF fur EQUALS TRUE THEN
+                DISPLAY name + " has fur"
+            END IF
+            IF liveBirth EQUALS TRUE THEN
+                DISPLAY name + " gives birth to live young"
+            END IF
+        END METHOD
+END CLASS
+
+CLASS Enclosure
+	ATTRIBUTES
+		animals: LIST<Animal>
+		temperature: NUMBER
+	
+	CONSTRUCTOR(temp: NUMBER)
+		SET animals TO LIST[]
+		SET temperature TO temp
+	END CONSTRUCTOR
+	
+	METHODS
+		ADD_ANIMAL(a : Animal)
+            ADD a TO animals
+        END METHOD
+
+        VIEW_ANIMALS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF animals
+                DISPLAY "Animal: " + animals[i].GET_NAME() + 
+                        " (" + animals[i].GET_AGE() + " yrs, Diet: " + animals[i].GET_DIET() + ")"
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+
+        GET_TEMPERATURE()
+            RETURN temperature
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT enclosure1 OF ENCLOSURE(25)
+
+		CREATE OBJECT bird1 OF BIRD("Parrot", 3, "dietType1")
+		CREATE OBJECT fish1 OF FISH("Goldfish", 1, "dietType2")
+		CREATE OBJECT mammal1 OF MAMMAL("Lion", 5, "dietType3", TRUE, TRUE)
+
+		enclosure1.ADD_ANIMAL(bird1)
+		enclosure1.ADD_ANIMAL(fish1)
+		enclosure1.ADD_ANIMAL(mammal1)
+
+		DISPLAY "Enclosure Temperature: " + enclosure1.GET_TEMPERATURE() + "°C"
+		enclosure1.VIEW_ANIMALS()
+
+		bird1.MAKE_SOUND()
+		bird1.DESCRIBE_MOVEMENT()
+		bird1.LAY_EGGS()
+
+		fish1.MAKE_SOUND()
+		fish1.DESCRIBE_MOVEMENT()
+		fish1.BREATH_GILLS()
+
+		mammal1.MAKE_SOUND()
+		mammal1.DESCRIBE_MOVEMENT()
+		mammal1.DESCRIBE_STATE()
+	END
+STOP
+
+//Task 296: Online Payment Methods
+
+CLASS PaymentMethod
+    ATTRIBUTES
+        amount : NUMBER
+        status : TEXT   
+
+    CONSTRUCTOR(a : NUMBER)
+        SET amount TO a
+        SET status TO "pending"
+    END CONSTRUCTOR
+
+    METHODS
+        GET_AMOUNT()
+            RETURN amount
+        END METHOD
+
+        GET_STATUS()
+            RETURN status
+        END METHOD
+
+        PROCESS_PAYMENT()
+            DISPLAY " payment processing"
+            RETURN FALSE
+        END METHOD
+END CLASS
+
+
+CLASS CreditCardPayment INHERITS PaymentMethod
+    ATTRIBUTES
+        cardNumber : TEXT
+        expiryDate : TEXT
+
+    CONSTRUCTOR(a : NUMBER, cn : TEXT, ed : TEXT)
+        SUPER(a)
+        SET cardNumber TO cn
+        SET expiryDate TO ed
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE PROCESS_PAYMENT()
+            IF LENGTH(cardNumber) EQUALS 16 AND expiryDate NOT EMPTY THEN
+                SET status TO "completed"
+                DISPLAY "Credit card payment approved for " + amount
+                RETURN TRUE
+            ELSE
+                DISPLAY "Credit card validation failed"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS BankTransferPayment INHERITS PaymentMethod
+    ATTRIBUTES
+        accountNumber : TEXT
+
+    CONSTRUCTOR(a : NUMBER, acc : TEXT)
+        SUPER(a)
+        SET accountNumber TO acc
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE PROCESS_PAYMENT()
+            IF LENGTH(accountNumber) GREATER THAN 5 THEN
+                DISPLAY "Processing bank transfer... please wait"
+                SET status TO "completed"
+                DISPLAY "Bank transfer completed for " + amount
+                RETURN TRUE
+            ELSE
+                DISPLAY "Invalid account number"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS WalletPayment INHERITS PaymentMethod
+    ATTRIBUTES
+        walletBalance : NUMBER
+
+    CONSTRUCTOR(a : NUMBER, balance : NUMBER)
+        SUPER(a)
+        SET walletBalance TO balance
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE PROCESS_PAYMENT()
+            IF walletBalance GREATER THAN OR EQUAL TO amount THEN
+                SET walletBalance TO walletBalance - amount
+                SET status TO "completed"
+                DISPLAY "Wallet payment completed for " + amount
+                RETURN TRUE
+            ELSE
+                DISPLAY "Insufficient wallet balance"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS Item
+    ATTRIBUTES
+        name : TEXT
+        price : NUMBER
+
+    CONSTRUCTOR(n : TEXT, p : NUMBER)
+        SET name TO n
+        SET price TO p
+    END CONSTRUCTOR
+
+    METHODS
+        GET_NAME()
+            RETURN name
+        END METHOD
+
+        GET_PRICE()
+            RETURN price
+        END METHOD
+END CLASS
+
+
+CLASS Order
+    ATTRIBUTES
+        items : LIST<Item>
+        payment : PaymentMethod
+
+    CONSTRUCTOR()
+        SET items TO LIST []
+        SET payment TO NULL
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_ITEM(i : Item)
+            ADD i TO items
+        END METHOD
+
+        CALCULATE_TOTAL()
+            SET total TO 0
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF items
+                SET total TO total + items[i].GET_PRICE()
+                SET i TO i + 1
+            END REPEAT
+            RETURN total
+        END METHOD
+
+        CHECKOUT(pm : PaymentMethod)
+            SET payment TO pm
+            DISPLAY "Checkout total: " + CALCULATE_TOTAL()
+            IF payment.PROCESS_PAYMENT() EQUALS TRUE THEN
+                DISPLAY "Order payment successful"
+            ELSE
+                DISPLAY "Order payment failed"
+            END IF
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT order1 OF ORDER()
+		CREATE OBJECT item1 OF ITEM("Laptop", 1200)
+		CREATE OBJECT item2 OF ITEM("Mouse", 50)
+		order1.ADD_ITEM(item1)
+		order1.ADD_ITEM(item2)
+		DISPLAY "Order total: " + order1.CALCULATE_TOTAL()
+		CREATE OBJECT pay1 OF CREDITCARDPAYMENT(order1.CALCULATE_TOTAL(), "1234567812345678", "12/28")
+		order1.CHECKOUT(pay1)
+		CREATE OBJECT order2 OF ORDER()
+		CREATE OBJECT item3 OF ITEM("Headphones", 200)
+		order2.ADD_ITEM(item3)
+		CREATE OBJECT pay2 OF BANKTRANSFERPAYMENT(order2.CALCULATE_TOTAL(), "ACC998877")
+		order2.CHECKOUT(pay2)
+		CREATE OBJECT order3 OF ORDER()
+		CREATE OBJECT item4 OF ITEM("Keyboard", 100)
+		order3.ADD_ITEM(item4)
+		CREATE OBJECT pay3 OF WALLETPAYMENT(order3.CALCULATE_TOTAL(), 150)
+		order3.CHECKOUT(pay3)
+	END
+STOP
+
+
+//Task 297: Streaming Service Subscriptions  
+
+CLASS Subscription
+	ATTRIBUTES
+		startDate: TEXT
+		monthlyPrice: NUMBER
+		
+	CONSTRUCTOR(sd: TEXT, mp: NUMBER)
+		SET startDate: sd
+		SET monthlyPrice: mp
+	END CONSTRUCTOR
+	
+	
+	METHODS
+		GET_PRICE()
+			RETURN monthlyPrice
+		END METHOD
+		
+		IS_ACTIVE(currentDate: TEXT)
+			RETURN TRUE
+		END METHOD
+		
+		GET_STREAMING_QUALITY()
+            RETURN "quality"
+        END METHOD
+
+        GET_DEVICE_LIMIT()
+            RETURN 0
+        END METHOD
+
+        HAS_DOWNLOADS()
+            RETURN FALSE
+        END METHOD
+END CLASS
+
+CLASS BasicPlan INHERITS Subscription
+    CONSTRUCTOR(sd : TEXT, mp : NUMBER)
+        SUPER(sd, mp)
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE GET_STREAMING_QUALITY()
+            RETURN "Standard Definition"
+        END METHOD
+
+        OVERRIDE GET_DEVICE_LIMIT()
+            RETURN 1
+        END METHOD
+END CLASS
+
+
+CLASS StandardPlan INHERITS Subscription
+    CONSTRUCTOR(sd : TEXT, mp : NUMBER)
+        SUPER(sd, mp)
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE GET_STREAMING_QUALITY()
+            RETURN "High Definition"
+        END METHOD
+
+        OVERRIDE GET_DEVICE_LIMIT()
+            RETURN 2
+        END METHOD
+END CLASS
+
+
+CLASS PremiumPlan INHERITS Subscription
+    CONSTRUCTOR(sd : TEXT, mp : NUMBER)
+        SUPER(sd, mp)
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE GET_STREAMING_QUALITY()
+            RETURN "Ultra High Definition"
+        END METHOD
+
+        OVERRIDE GET_DEVICE_LIMIT()
+            RETURN 4
+        END METHOD
+
+        OVERRIDE HAS_DOWNLOADS()
+            RETURN TRUE
+        END METHOD
+END CLASS
+
+
+CLASS WatchRecord
+    ATTRIBUTES
+        title : TEXT
+        dateWatched : TEXT
+
+    CONSTRUCTOR(t : TEXT, d : TEXT)
+        SET title TO t
+        SET dateWatched TO d
+    END CONSTRUCTOR
+
+    METHODS
+        DESCRIBE()
+            DISPLAY "Watched: " + title + " on " + dateWatched
+        END METHOD
+END CLASS
+
+
+CLASS UserAccount
+    ATTRIBUTES
+        username : TEXT
+        subscription : Subscription
+        watchHistory : LIST<WatchRecord>
+
+    CONSTRUCTOR(u : TEXT, s : Subscription)
+        SET username TO u
+        SET subscription TO s
+        SET watchHistory TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_WATCH_RECORD(w : WatchRecord)
+            ADD w TO watchHistory
+        END METHOD
+
+        VIEW_HISTORY()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF watchHistory
+                watchHistory[i].DESCRIBE()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+
+        SHOW_SUBSCRIPTION_DETAILS()
+            DISPLAY "User: " + username
+            DISPLAY "Plan: " + subscription.GET_STREAMING_QUALITY()
+            DISPLAY "Devices allowed: " + subscription.GET_DEVICE_LIMIT()
+            DISPLAY "Downloads available: " + subscription.HAS_DOWNLOADS()
+            DISPLAY "Monthly Price: " + subscription.GET_PRICE()
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT sub1 OF BASICPLAN("2026-07-01", 5)
+		CREATE OBJECT user1 OF USERACCOUNT("Sara", sub1)
+
+		CREATE OBJECT sub2 OF STANDARDPLAN("2026-07-01", 10)
+		CREATE OBJECT user2 OF USERACCOUNT("Ali", sub2)
+
+		CREATE OBJECT sub3 OF PREMIUMPLAN("2026-07-01", 15)
+		CREATE OBJECT user3 OF USERACCOUNT("Omar", sub3)
+
+		user1.SHOW_SUBSCRIPTION_DETAILS()
+		user2.SHOW_SUBSCRIPTION_DETAILS()
+		user3.SHOW_SUBSCRIPTION_DETAILS()
+
+		CREATE OBJECT record1 OF WATCHRECORD("Movie A", "2026-07-05")
+		CREATE OBJECT record2 OF WATCHRECORD("Series B", "2026-07-06")
+
+		user3.ADD_WATCH_RECORD(record1)
+		user3.ADD_WATCH_RECORD(record2)
+
+		DISPLAY "Watch History for " + user3.username
+		user3.VIEW_HISTORY()
+	END
+STOP
+
+
+//Task 298: Delivery Vehicles Fleet 
+CLASS Engine
+	ATTRIBUTES
+		hourepower: NUMBER
+		fuelEfficiency: NUMBER
+		
+	CONSTRUCTOR(hp: NUMBER, fe: NUMBER)
+		SET hourepower TO hp
+		SET fuelEfficiency TO fe
+	END CONSTRUCTOR
+	
+	METHODS
+        GET_HORSEPOWER()
+            RETURN horsepower
+        END METHOD
+
+        GET_FUEL_EFFICIENCY()
+            RETURN fuelEfficiency
+        END METHOD
+END CLASS
+
+CLASS Vehicle
+    ATTRIBUTES
+        licencePlate : TEXT
+        fuelLevel : NUMBER
+        engine : Engine
+
+    CONSTRUCTOR(lp : TEXT, fl : NUMBER, e : Engine)
+        SET licencePlate TO lp
+        SET fuelLevel TO fl
+        SET engine TO e
+    END CONSTRUCTOR
+
+    METHODS
+        GET_LICENCE_PLATE()
+            RETURN licencePlate
+        END METHOD
+
+        GET_FUEL_LEVEL()
+            RETURN fuelLevel
+        END METHOD
+
+        CALCULATE_DELIVERY_TIME(distance : NUMBER)
+            DISPLAY " delivery time calculation"
+            RETURN 0
+        END METHOD
+
+        CALCULATE_FUEL_REQUIRED(distance : NUMBER)
+            RETURN distance / engine.GET_FUEL_EFFICIENCY()
+        END METHOD
+
+        HAS_ENOUGH_FUEL(distance : NUMBER)
+            IF CALCULATE_FUEL_REQUIRED(distance) LESS THAN OR EQUAL TO fuelLevel THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS Van INHERITS Vehicle
+    ATTRIBUTES
+        cargoCapacity : NUMBER   
+
+    CONSTRUCTOR(lp : TEXT, fl : NUMBER, e : Engine, cc : NUMBER)
+        SUPER(lp, fl, e)
+        SET cargoCapacity TO cc
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_DELIVERY_TIME(distance : NUMBER)
+            SET avgSpeed TO 40   
+            RETURN distance / avgSpeed
+        END METHOD
+END CLASS
+
+
+CLASS Motorbike INHERITS Vehicle
+    CONSTRUCTOR(lp : TEXT, fl : NUMBER, e : Engine)
+        SUPER(lp, fl, e)
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_DELIVERY_TIME(distance : NUMBER)
+            SET avgSpeed TO 60   
+            RETURN distance / avgSpeed
+        END METHOD
+END CLASS
+
+
+CLASS Truck INHERITS Vehicle
+    ATTRIBUTES
+        loadCapacity : NUMBER   
+
+    CONSTRUCTOR(lp : TEXT, fl : NUMBER, e : Engine, lc : NUMBER)
+        SUPER(lp, fl, e)
+        SET loadCapacity TO lc
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_DELIVERY_TIME(distance : NUMBER)
+            SET avgSpeed TO 30   
+            RETURN distance / avgSpeed
+        END METHOD
+END CLASS
+
+
+CLASS Stop
+    ATTRIBUTES
+        address : TEXT
+        package : TEXT
+
+    CONSTRUCTOR(a : TEXT, p : TEXT)
+        SET address TO a
+        SET package TO p
+    END CONSTRUCTOR
+
+    METHODS
+        DESCRIBE()
+            DISPLAY "Deliver package: " + package + " to " + address
+        END METHOD
+END CLASS
+
+
+CLASS Route
+    ATTRIBUTES
+        stops : LIST<Stop>
+
+    CONSTRUCTOR()
+        SET stops TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_STOP(s : Stop)
+            ADD s TO stops
+        END METHOD
+
+        VIEW_STOPS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF stops
+                stops[i].DESCRIBE()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT engine1 OF ENGINE(150, 12)
+		CREATE OBJECT van1 OF VAN("ABC123", 50, engine1, 1000)
+
+		CREATE OBJECT engine2 OF ENGINE(80, 25)
+		CREATE OBJECT bike1 OF MOTORBIKE("XYZ789", 20, engine2)
+
+		CREATE OBJECT engine3 OF ENGINE(300, 8)
+		CREATE OBJECT truck1 OF TRUCK("LMN456", 100, engine3, 10)
+
+		CREATE OBJECT route1 OF ROUTE()
+		CREATE OBJECT stop1 OF STOP("City Center", "Books")
+		CREATE OBJECT stop2 OF STOP("Airport", "Electronics")
+		route1.ADD_STOP(stop1)
+		route1.ADD_STOP(stop2)
+
+		DISPLAY "Route Stops:"
+		route1.VIEW_STOPS()
+
+		DISPLAY "Van delivery time : " + van1.CALCULATE_DELIVERY_TIME(20) + " hours"
+		DISPLAY "Motorbike delivery time : " + bike1.CALCULATE_DELIVERY_TIME(20) + " hours"
+		DISPLAY "Truck delivery time : " + truck1.CALCULATE_DELIVERY_TIME(20) + " hours"
+
+		DISPLAY "Van has enough fuel? " + van1.HAS_ENOUGH_FUEL(20)
+		DISPLAY "Motorbike has enough fuel? " + bike1.HAS_ENOUGH_FUEL(20)
+		DISPLAY "Truck has enough fuel? " + truck1.HAS_ENOUGH_FUEL(20)
+		
+	END
+STOP
+
+//Task 299: Bank Cards 
+CLASS Chip
+	ATTRIBUTES
+		 encryptedData: TEXT
+		 
+	CONSTRUCTOR(ed: TEXT)
+		SET encryptedData TO ed
+	END CONSTRUCTOR
+	
+	METHODS
+	VALIDATE_SECURITY()
+            DISPLAY "Chip security validated using " + encryptedData
+            RETURN TRUE
+        END METHOD
+END CLASS
+
+CLASS Card
+	ATTRIBUTES
+		cardNumber: TEXT
+		expiryDate: TEXT
+		status: TEXT
+		chip: Chip
+		
+	CONSTRUCTOR(cn:NUMBER, ed: TEXT, s:TEXE, c: Chip)
+		SET cardNumber TO cn
+		SET expiryDate TO ed
+		SET status TO s
+		SET chip TO c
+	END CONSTRUCTOR
+	
+	METHODS
+		GET_STATUS()
+            RETURN status
+        END METHOD
+
+        AUTHORISE_PURCHASE(amount : NUMBER)
+            DISPLAY " card authorization"
+            RETURN FALSE
+        END METHOD
+END CLASS 
+			
+
+CLASS DebitCard INHERITS Card
+	ATTRIBUTES
+		accountBalance: NUMBER
+		
+	CONSTRUCTOR(cn: NUMBER, ed: TEXT, s:TEXE, c: Chip, b: NUMBER)
+		SUPER(cn, ed, s, c)
+		SET accountBalance TO b
+	END CONSTRUCTOR
+	
+	METHODS
+		OVERRIDE AUTHORISE_PURCHASE(amount : NUMBER)
+			IF status EQUALS "blocked"
+				DISPLAY " Card is blocked"
+				RETURN TRUE
+			ELSE
+				DISPLAY "Insufficient balance"
+				RETURN FALSE
+			END ID
+		END METHOD
+END CLASS
+
+
+
+CLASS CreditCard INHERITS Card
+	ATTRIBUTES
+		creditLimit : NUMBER
+        outstandingBalance : NUMBER
+		
+	CONSTRUCTOR(cn: NUMBER, ed: TEXT, s:TEXE, c: Chip, cl: NUMBER)
+		SUPER(cn, ed, s, c)
+		SET creditLimit TO cl
+		SET outstandingBalance TO 0
+	END CONSTRUCTOR
+	
+	METHODS
+		OVERRIDE AUTHORISE_PURCHASE(amount: NUMBER)
+			IF status EQUALS "blocked"
+				DISPLAY " CARD BLOCKED "
+				RETURN FALSE
+			END IF 
+			IF chip.VALIDATE_SECURITY() EQUALS TRUE AND (outstandingBalance + amount) <= creditLimit THEN
+                SET outstandingBalance TO outstandingBalance + amount
+				DISPLAY amount
+				RETURN TRUE
+			ELSE
+				DISPLAY "Credit limit exceeded"
+				RETURN FALSE
+			END IF 
+		END METHOD
+		
+		GET_OUTSTANDING_BALANCE()
+            RETURN outstandingBalance
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT chip1 OF CHIP("Encrypted123")
+		CREATE OBJECT debit1 OF DEBITCARD("1111222233334444", "12/28", "active", chip1, 500)
+
+		CREATE OBJECT chip2 OF CHIP("SecureXYZ")
+		CREATE OBJECT credit1 OF CREDITCARD("5555666677778888", "11/27", "active", chip2, 1000)
+
+		DISPLAY "Attempting Debit Card Purchase:"
+		debit1.AUTHORISE_PURCHASE(200)
+
+		DISPLAY "Attempting Credit Card Purchase:"
+		credit1.AUTHORISE_PURCHASE(300)
+		DISPLAY "Outstanding Balance = " + credit1.GET_OUTSTANDING_BALANCE()
+
+		DISPLAY "Attempting limit:"
+		credit1.AUTHORISE_PURCHASE(800)
+	END
+STOP
+
+//Task 300: Hospital Staff Scheduling (Medium)
+CLASS StaffMember
+	ATTRIBUTES
+		name: TEXE
+		employeeID: TEXE
+	CONSTRUCTOR(n: TEXE, id: TEXE)
+		SET name TO n
+		SET employeeID TO id
+	END CONSTRUCTOR
+	
+	METHODS
+		ASSIGN_SHIFT(s:Shift)
+			DISPLAY name+ s.ward 
+		END METHOD
+END CLASS
+
+CLASS Doctor INHERITS StaffMember
+	METHODS
+		APPROVE_TREATMENT()
+			DISPLAY name+ " approved treatment"
+		END METHOD
+
+        DIAGNOSE()
+            DISPLAY name + " provides diagnosis"
+        END METHOD
+END CLASS
+
+
+CLASS Surgeon INHERITS Doctor
+    METHODS
+        PERFORM_OPERATION()
+            DISPLAY name + " performs surgery"
+        END METHOD
+END CLASS
+
+
+CLASS Nurse INHERITS StaffMember
+    METHODS
+        ADMINISTER_MEDICATION()
+            DISPLAY name + " administers medication"
+        END METHOD
+
+        RECORD_VITAL_SIGNS()
+            DISPLAY name + " records vital signs"
+        END METHOD
+END CLASS
+
+
+CLASS Shift
+    ATTRIBUTES
+        startTime : TEXT
+        endTime : TEXT
+        ward : TEXT
+
+    CONSTRUCTOR(st : TEXT, et : TEXT, w : TEXT)
+        SET startTime TO st
+        SET endTime TO et
+        SET ward TO w
+    END CONSTRUCTOR
+
+    METHODS
+        DESCRIBE()
+            DISPLAY "Shift in " + ward + " from " + startTime + " to " + endTime
+        END METHOD
+END CLASS
+
+
+CLASS Ward
+    ATTRIBUTES
+        name : TEXT
+        shifts : LIST<Shift>
+
+    CONSTRUCTOR(n : TEXT)
+        SET name TO n
+        SET shifts TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_SHIFT(s : Shift)
+            ADD s TO shifts
+        END METHOD
+
+        VIEW_SHIFTS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF shifts
+                shifts[i].DESCRIBE()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT ward1 OF WARD("Emergency")
+
+		CREATE OBJECT shift1 OF SHIFT("08:00", "16:00", "Emergency")
+		CREATE OBJECT shift2 OF SHIFT("16:00", "00:00", "Emergency")
+
+		ward1.ADD_SHIFT(shift1)
+		ward1.ADD_SHIFT(shift2)
+
+		CREATE OBJECT doc1 OF DOCTOR("Dr. Ali", "D101")
+		CREATE OBJECT surg1 OF SURGEON("Dr. Sara", "S202")
+		CREATE OBJECT nurse1 OF NURSE("Nurse Omar", "N303")
+
+		DISPLAY "Ward Shifts:"
+		ward1.VIEW_SHIFTS()
+
+		doc1.ASSIGN_SHIFT(shift1)
+		doc1.APPROVE_TREATMENT()
+		doc1.DIAGNOSE()
+
+		surg1.ASSIGN_SHIFT(shift2)
+		surg1.APPROVE_TREATMENT()
+		surg1.DIAGNOSE()
+		surg1.PERFORM_OPERATION()
+
+		nurse1.ASSIGN_SHIFT(shift1)
+		nurse1.ADMINISTER_MEDICATION()
+		nurse1.RECORD_VITAL_SIGNS()
+	END
+STOP
+		
 		
 
+//Task 301: E-book Reader App 
+CLASS CoverImage
+    ATTRIBUTES
+        filePath : TEXT
+        width : NUMBER
+        height : NUMBER
 
+    CONSTRUCTOR(fp : TEXT, w : NUMBER, h : NUMBER)
+        SET filePath TO fp
+        SET width TO w
+        SET height TO h
+    END CONSTRUCTOR
+END CLASS
+
+CLASS Publication
+    ATTRIBUTES
+        title : TEXT
+        author : TEXT
+        totalPages : NUMBER
+        coverImage : CoverImage
+
+    CONSTRUCTOR(t : TEXT, a : TEXT, tp : NUMBER, ci : CoverImage)
+        SET title TO t
+        SET author TO a
+        SET totalPages TO tp
+        SET coverImage TO ci
+    END CONSTRUCTOR
+
+    METHODS
+        GET_PROGRESS() : NUMBER
+            DISPLAY "Progress depends on publication type"
+        END METHOD
+END CLASS
+
+CLASS Novel INHERITS Publication
+    ATTRIBUTES
+        pagesRead : NUMBER
+
+    CONSTRUCTOR(t : TEXT, a : TEXT, tp : NUMBER, ci : CoverImage, pr : NUMBER)
+        CALL SUPER(t, a, tp, ci)
+        SET pagesRead TO pr
+    END CONSTRUCTOR
+
+    METHODS
+        GET_PROGRESS() : NUMBER
+            RETURN (pagesRead / totalPages) * 100
+        END METHOD
+END CLASS
+
+
+CLASS Magazine INHERITS Publication
+    ATTRIBUTES
+        totalArticles : NUMBER
+        articlesOpened : NUMBER
+
+    CONSTRUCTOR(t : TEXT, a : TEXT, tp : NUMBER, ci : CoverImage, ta : NUMBER, ao : NUMBER)
+        CALL SUPER(t, a, tp, ci)
+        SET totalArticles TO ta
+        SET articlesOpened TO ao
+    END CONSTRUCTOR
+
+    METHODS
+        GET_PROGRESS() : NUMBER
+            RETURN (articlesOpened / totalArticles) * 100
+        END METHOD
+END CLASS
+
+
+CLASS Audiobook INHERITS Publication
+    ATTRIBUTES
+        totalDuration : NUMBER
+        listenedDuration : NUMBER
+
+    CONSTRUCTOR(t : TEXT, a : TEXT, tp : NUMBER, ci : CoverImage, td : NUMBER, ld : NUMBER)
+        CALL SUPER(t, a, tp, ci)
+        SET totalDuration TO td
+        SET listenedDuration TO ld
+    END CONSTRUCTOR
+
+    METHODS
+        GET_PROGRESS() : NUMBER
+            RETURN (listenedDuration / totalDuration) * 100
+        END METHOD
+END CLASS
+
+
+CLASS Library
+    ATTRIBUTES
+        publications : LIST<Publication>
+
+    CONSTRUCTOR()
+        SET publications TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_PUBLICATION(p : Publication)
+            ADD p TO publications
+        END METHOD
+
+        VIEW_PROGRESS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF publications
+                DISPLAY publications[i].title + " progress: " + publications[i].GET_PROGRESS() + "%"
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT cover1 OF COVERIMAGE("novel.jpg", 600, 800)
+		CREATE OBJECT cover2 OF COVERIMAGE("magazine.png", 500, 700)
+		CREATE OBJECT cover3 OF COVERIMAGE("audiobook.jpg", 400, 400)
+
+		CREATE OBJECT novel1 OF NOVEL(" Novel1, "Author A", 300, cover1, 120)
+		CREATE OBJECT mag1 OF MAGAZINE("Tech Monthly", "Editor B", 100, cover2, 10, 4)
+		CREATE OBJECT audio1 OF AUDIOBOOK("History Podcast", "Narrator C", 0, cover3, 600, 150)
+
+		CREATE OBJECT myLibrary OF LIBRARY()
+		myLibrary.ADD_PUBLICATION(novel1)
+		myLibrary.ADD_PUBLICATION(mag1)
+		myLibrary.ADD_PUBLICATION(audio1) 
+
+		DISPLAY "Library Progress:"
+		myLibrary.VIEW_PROGRESS()
+	END
+STOP
+
+
+
+//Task 302: Smart Home Devices (Medium) 
+CLASS Device
+    ATTRIBUTES
+        name : TEXT
+        roomLocation : TEXT
+        status : TEXT
+
+    CONSTRUCTOR(n : TEXT, r : TEXT, st : TEXT)
+        SET name TO n
+        SET roomLocation TO r
+        SET status TO st
+    END CONSTRUCTOR
+
+    METHODS
+        TURN_ON()
+            SET status TO "on"
+        END METHOD
+
+        TURN_OFF()
+            SET status TO "off"
+        END METHOD
+
+        GET_STATUS()
+            RETURN status
+        END METHOD
+
+        GET_POWER_USAGE()
+            RETURN 0
+        END METHOD
+END CLASS
+
+
+CLASS SmartLight INHERITS Device
+    ATTRIBUTES
+        brightness : NUMBER
+
+    CONSTRUCTOR(n : TEXT, r : TEXT, st : TEXT, b : NUMBER)
+        SUPER(n, r, st)
+        SET this.brightness TO b
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE GET_POWER_USAGE()
+            IF status EQUALS "on" THEN
+                RETURN brightness * 0.1
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS SmartThermostat INHERITS Device
+    ATTRIBUTES
+        targetTemperature : NUMBER
+        currentTemperature : NUMBER
+
+    CONSTRUCTOR(n : TEXT, r : TEXT, st : TEXT, target : NUMBER, current : NUMBER)
+        SUPER(n, r, st)
+        SET targetTemperature TO target
+        SET currentTemperature TO current
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE GET_POWER_USAGE()
+            IF status EQUALS "on" THEN
+                SET difference TO ABS(targetTemperature - currentTemperature)
+                RETURN difference * 0.5
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS StorageUnit
+    ATTRIBUTES
+        capacity : NUMBER
+        usedSpace : NUMBER
+
+    CONSTRUCTOR(cap : NUMBER)
+        SET capacity TO cap
+        SET usedSpace TO 0
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_RECORDING(size : NUMBER)
+            IF usedSpace + size LESS THAN OR EQUAL TO capacity THEN
+                SET usedSpace TO usedSpace + size
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        GET_USED_SPACE()
+            RETURN usedSpace
+        END METHOD
+END CLASS
+
+
+CLASS SmartCamera INHERITS Device
+    ATTRIBUTES
+        recording : BOOLEAN
+        storage : StorageUnit
+
+    CONSTRUCTOR(n : TEXT, r : TEXT, st : TEXT, storageObj : StorageUnit)
+        SUPER(n, r, st)
+        SET recording TO FALSE
+        SET storage TO storageObj
+    END CONSTRUCTOR
+
+    METHODS
+        START_RECORDING(size : NUMBER)
+            IF status EQUALS "on" THEN
+                IF storage.ADD_RECORDING(size) EQUALS TRUE THEN
+                    SET recording TO TRUE
+                ELSE
+                    SET recording TO FALSE
+                END IF
+            END IF
+        END METHOD
+
+        STOP_RECORDING()
+            SET recording TO FALSE
+        END METHOD
+
+        OVERRIDE GET_POWER_USAGE()
+            IF status EQUALS "on" AND recording EQUALS TRUE THEN
+                RETURN 5
+            ELSE IF status EQUALS "on" THEN
+                RETURN 1
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS Room
+    ATTRIBUTES
+        name : TEXT
+        devices : LIST<Device>
+
+    CONSTRUCTOR(n : TEXT)
+        SET name TO n
+        SET devices TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_DEVICE(d : Device)
+            ADD d TO devices
+        END METHOD
+
+        VIEW_DEVICES()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF devices
+                DISPLAY "Device: " + devices[i].name + 
+                        " (" + devices[i].roomLocation + ") Status: " + devices[i].GET_STATUS()
+                DISPLAY "Power Usage = " + devices[i].GET_POWER_USAGE()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT room1 OF ROOM("Living Room")
+
+		CREATE OBJECT light1 OF SMARTLIGHT(" light1", "Living Room", "on", 80)
+		CREATE OBJECT thermo1 OF SMARTTHERMOSTAT("thermo1", "Living Room", "on", 24, 30)
+		CREATE OBJECT storage1 OF STORAGEUNIT(100)
+		CREATE OBJECT cam1 OF SMARTCAMERA("Security Cam", "Living Room", "on", storage1)
+
+		room1.ADD_DEVICE(light1)
+		room1.ADD_DEVICE(thermo1)
+		room1.ADD_DEVICE(cam1)
+
+		DISPLAY "Room Devices:"
+		room1.VIEW_DEVICES()
+
+		cam1.START_RECORDING(20)
+		room1.VIEW_DEVICES()
+
+		cam1.START_RECORDING(90)
+		room1.VIEW_DEVICES()
+	END
+STOP
