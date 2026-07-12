@@ -1,0 +1,639 @@
+//OOP Tasks - 6
+//Task 303: Musical Instruments Store 
+
+CLASS Instrument
+    ATTRIBUTES
+        brand : TEXT
+        price : NUMBER
+
+    CONSTRUCTOR(b : TEXT, p : NUMBER)
+        SET brand TO b
+        SET price TO p
+    END CONSTRUCTOR
+
+    METHODS
+        DESCRIBE_PLAY_STYLE()
+            DISPLAY "Generic play style"
+        END METHOD
+END CLASS
+
+CLASS Guitar INHERITS Instrument
+    ATTRIBUTES
+        strings : NUMBER
+
+    CONSTRUCTOR(b : TEXT, p : NUMBER, s : NUMBER)
+        SUPER(b, p)
+        SET strings TO s
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE DESCRIBE_PLAY_STYLE()
+            DISPLAY "This guitar is strummed or plucked"
+        END METHOD
+END CLASS
+
+
+CLASS DrumKit INHERITS Instrument
+    ATTRIBUTES
+        drumPieces : NUMBER
+
+    CONSTRUCTOR(b : TEXT, p : NUMBER, d : NUMBER)
+        SUPER(b, p)
+        SET drumPieces TO d
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE DESCRIBE_PLAY_STYLE()
+            DISPLAY "This drum kit is struck"
+        END METHOD
+END CLASS
+
+
+CLASS Keyboard INHERITS Instrument
+    ATTRIBUTES
+        keys : NUMBER
+
+    CONSTRUCTOR(b : TEXT, p : NUMBER, k : NUMBER)
+        SUPER(b, p)
+        SET keys TO k
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE DESCRIBE_PLAY_STYLE()
+            DISPLAY "This keyboard is pressed"
+        END METHOD
+END CLASS
+
+
+CLASS Store
+    ATTRIBUTES
+        instruments : LIST<Instrument>
+
+    CONSTRUCTOR()
+        SET instruments TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_INSTRUMENT(i : Instrument)
+            ADD i TO instruments
+        END METHOD
+
+        VIEW_INSTRUMENTS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF instruments
+                DISPLAY "Instrument: " + instruments[i].brand + S
+	ATTRIBUTES
+		ice: " + instruments[i].price
+                instruments[i].DESCRIBE_PLAY_STYLE()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT store1 OF STORE()
+
+		CREATE OBJECT guitar1 OF GUITAR("guitar1", 500, 6)
+		CREATE OBJECT drum1 OF DRUMKIT("drum1", 800, 5)
+		CREATE OBJECT keyboard1 OF KEYBOARD("keyboard1", 300, 61)
+
+		store1.ADD_INSTRUMENT(guitar1)
+		store1.ADD_INSTRUMENT(drum1)
+		store1.ADD_INSTRUMENT(keyboard1)
+
+		DISPLAY "Store Inventory:"
+		store1.VIEW_INSTRUMENTS()
+	END
+STOP
+ 
+//Task 304: Fitness App Workouts 
+
+CLASS Workout
+    ATTRIBUTES
+        date : TEXT
+        duration : NUMBER
+
+    CONSTRUCTOR(d : TEXT, dur : NUMBER)
+        SET date TO d
+        SET duration TO dur
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_CALORIES()
+            RETURN 0
+        END METHOD
+
+        DISPLAY_INFO()
+            DISPLAY date
+            DISPLAY duration
+        END METHOD
+END CLASS
+
+CLASS RunningWorkout INHERITS Workout
+    ATTRIBUTES
+        distance : NUMBER
+        pace : TEXT
+
+    CONSTRUCTOR(d : TEXT, dur : NUMBER, dist : NUMBER, p : TEXT)
+        SUPER(d, dur)
+        SET distance TO dist
+        SET pace TO p
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_CALORIES()
+            RETURN distance * 10
+        END METHOD
+END CLASS
+
+CLASS CyclingWorkout INHERITS Workout
+    ATTRIBUTES
+        distance : NUMBER
+        resistanceLevel : NUMBER
+
+    CONSTRUCTOR(d : TEXT, dur : NUMBER, dist : NUMBER, rl : NUMBER)
+        SUPER(d, dur)
+        SET distance TO dist
+        SET resistanceLevel TO rl
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_CALORIES()
+            RETURN distance * resistanceLevel
+        END METHOD
+END CLASS
+
+CLASS WeightTrainingWorkout INHERITS Workout
+    ATTRIBUTES
+        sets : NUMBER
+        reps : NUMBER
+
+    CONSTRUCTOR(d : TEXT, dur : NUMBER, s : NUMBER, r : NUMBER)
+        SUPER(d, dur)
+        SET sets TO s
+        SET reps TO r
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_CALORIES()
+            RETURN sets * reps
+        END METHOD
+END CLASS
+
+CLASS FitnessLog
+    ATTRIBUTES
+        workouts : LIST<Workout>
+
+    CONSTRUCTOR()
+        SET workouts TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_WORKOUT(w : Workout)
+            ADD w TO workouts
+        END METHOD
+
+        REMOVE_WORKOUT(w : Workout)
+            REMOVE w FROM workouts
+        END METHOD
+
+        DISPLAY_WORKOUTS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF workouts
+                workouts[i].DISPLAY_INFO()
+                DISPLAY workouts[i].CALCULATE_CALORIES()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT log OF FitnessLog()
+
+		CREATE OBJECT run1 OF RunningWorkout("10/07/2026", 30, 5, "FAST")
+		CREATE OBJECT cycle1 OF CyclingWorkout("11/07/2026", 45, 15, 7)
+		CREATE OBJECT weight1 OF WeightTrainingWorkout("12/07/2026", 60, 4, 12)
+
+		log.ADD_WORKOUT(run1)
+		log.ADD_WORKOUT(cycle1)
+		log.ADD_WORKOUT(weight1)
+
+		log.DISPLAY_WORKOUTS()
+	END
+STOP
+
+		
+//Task 305: Video Game Characters 
+CLASS Character
+    ATTRIBUTES
+        name : TEXT
+        health : NUMBER
+        inventory : LIST<Item>
+
+    CONSTRUCTOR(n : TEXT, h : NUMBER)
+        SET name TO n
+        SET health TO h
+        SET inventory TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ATTACK()
+            DISPLAY "Character attacks"
+        END METHOD
+
+        DISPLAY_INFO()
+            DISPLAY name
+            DISPLAY health
+        END METHOD
+END CLASS
+
+CLASS Warrior INHERITS Character
+    ATTRIBUTES
+        heavyArmor : BOOLEAN
+
+    CONSTRUCTOR(n : TEXT, h : NUMBER, armor : BOOLEAN)
+        SUPER(n, h)
+        SET heavyArmor TO armor
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE ATTACK()
+            DISPLAY "Attacks using melee strength"
+        END METHOD
+END CLASS
+
+CLASS Mage INHERITS Character
+    ATTRIBUTES
+        manaPool : NUMBER
+
+    CONSTRUCTOR(n : TEXT, h : NUMBER, mp : NUMBER)
+        SUPER(n, h)
+        SET manaPool TO mp
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE ATTACK()
+            DISPLAY "Casts a magic spell"
+        END METHOD
+END CLASS
+
+CLASS Archer INHERITS Character
+    ATTRIBUTES
+        arrowSupply : NUMBER
+
+    CONSTRUCTOR(n : TEXT, h : NUMBER, arrows : NUMBER)
+        SUPER(n, h)
+        SET arrowSupply TO arrows
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE ATTACK()
+            DISPLAY "Shoots an arrow"
+        END METHOD
+END CLASS
+
+CLASS Item
+    ATTRIBUTES
+        itemName : TEXT
+
+    CONSTRUCTOR(n : TEXT)
+        SET itemName TO n
+    END CONSTRUCTOR
+END CLASS
+
+START
+	BEGIN
+		CREATE OBJECT warrior1 OF Warrior("warrior1", 100, TRUE)
+		CREATE OBJECT mage1 OF Mage("mage1", 80, 200)
+		CREATE OBJECT archer1 OF Archer("archer1", 90, 50)
+
+		warrior1.ATTACK()
+		mage1.ATTACK()
+		archer1.ATTACK()
+	END
+STOP
+
+
+//Task 306: Utility Billing System
+CLASS MeterReading
+    ATTRIBUTES
+        startReading : NUMBER
+        endReading : NUMBER
+
+    CONSTRUCTOR(sr : NUMBER, er : NUMBER)
+        SET startReading TO sr
+        SET endReading TO er
+    END CONSTRUCTOR
+
+    METHODS
+        GET_CONSUMPTION()
+            RETURN endReading - startReading
+        END METHOD
+END CLASS
+
+
+CLASS Bill
+    ATTRIBUTES
+        billingPeriod : TEXT
+        dueDate : TEXT
+        meterReading : MeterReading
+
+    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading)
+        SET billingPeriod TO bp
+        SET dueDate TO dd
+        SET meterReading TO mr
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_AMOUNT()
+            RETURN 0
+        END METHOD
+
+        DISPLAY_BILL()
+            DISPLAY billingPeriod
+            DISPLAY dueDate
+        END METHOD
+END CLASS
+
+CLASS ElectricityBill INHERITS Bill
+    ATTRIBUTES
+        unitsConsumed : NUMBER
+        dayRate : NUMBER
+        nightRate : NUMBER
+        timeOfDay : TEXT
+
+    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, uc : NUMBER, dr : NUMBER, nr : NUMBER, tod : TEXT)
+        SUPER(bp, dd, mr)
+        SET unitsConsumed TO uc
+        SET dayRate TO dr
+        SET nightRate TO nr
+        SET timeOfDay TO tod
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_AMOUNT()
+            IF timeOfDay EQUALS "DAY" THEN
+                RETURN unitsConsumed * dayRate
+            ELSE
+                RETURN unitsConsumed * nightRate
+            END IF
+        END METHOD
+
+        OVERRIDE DISPLAY_BILL()
+            DISPLAY "Electricity Bill"
+            DISPLAY CALCULATE_AMOUNT()
+        END METHOD
+END CLASS
+
+CLASS WaterBill INHERITS Bill
+    ATTRIBUTES
+        litersConsumed : NUMBER
+        flatRate : NUMBER
+        standingCharge : NUMBER
+
+    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, lc : NUMBER, fr : NUMBER, sc : NUMBER)
+        SUPER(bp, dd, mr)
+        SET litersConsumed TO lc
+        SET flatRate TO fr
+        SET standingCharge TO sc
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_AMOUNT()
+            RETURN (litersConsumed * flatRate) + standingCharge
+        END METHOD
+
+        OVERRIDE DISPLAY_BILL()
+            DISPLAY "Water Bill"
+            DISPLAY CALCULATE_AMOUNT()
+        END METHOD
+END CLASS
+
+CLASS GasBill INHERITS Bill
+    ATTRIBUTES
+        unitsConsumed : NUMBER
+        rate : NUMBER
+        season : TEXT
+        winterSurcharge : NUMBER
+
+    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, uc : NUMBER, r : NUMBER, s : TEXT, ws : NUMBER)
+        SUPER(bp, dd, mr)
+        SET unitsConsumed TO uc
+        SET rate TO r
+        SET season TO s
+        SET winterSurcharge TO ws
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_AMOUNT()
+            SET total TO unitsConsumed * rate
+            IF season EQUALS "WINTER" THEN
+                SET total TO total + winterSurcharge
+            END IF
+            RETURN total
+        END METHOD
+
+        OVERRIDE DISPLAY_BILL()
+            DISPLAY "Gas Bill"
+            DISPLAY CALCULATE_AMOUNT()
+        END METHOD
+END CLASS
+
+
+CLASS CustomerAccount
+    ATTRIBUTES
+        accountNumber : TEXT
+        customerName : TEXT
+        bills : LIST<Bill>
+
+    CONSTRUCTOR(an : TEXT, cn : TEXT)
+        SET accountNumber TO an
+        SET customerName TO cn
+        SET bills TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_BILL(b : Bill)
+            ADD b TO bills
+        END METHOD
+
+        REMOVE_BILL(b : Bill)
+            REMOVE b FROM bills
+        END METHOD
+
+        DISPLAY_BILLS()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF bills
+                bills[i].DISPLAY_BILL()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+BEGIN
+    CREATE OBJECT reading1 OF MeterReading(1000, 1200)
+    CREATE OBJECT reading2 OF MeterReading(500, 900)
+    CREATE OBJECT reading3 OF MeterReading(700, 950)
+
+    CREATE OBJECT electricBill OF ElectricityBill("JAN 2026", "31-JAN-2026", reading1, 200, 0.15, 0.10, "DAY")
+    CREATE OBJECT waterBill1 OF WaterBill("JAN 2026", "31-JAN-2026", reading2, 400, 0.05, 10)
+    CREATE OBJECT gasBill1 OF GasBill("JAN 2026", "31-JAN-2026", reading3, 250, 0.08, "WINTER", 2)
+
+    CREATE OBJECT account OF CustomerAccount("ACC1001", "Ahmed")
+
+    account.ADD_BILL(electricBill)
+    account.ADD_BILL(waterBill1)
+    account.ADD_BILL(gasBill1)
+
+    account.DISPLAY_BILLS()
+END
+STOP
+
+//Task 307: Ride-Sharing Vehicle Tiers 
+CLASS Waypoint
+    ATTRIBUTES
+        locationName : TEXT
+
+    CONSTRUCTOR(ln : TEXT)
+        SET locationName TO ln
+    END CONSTRUCTOR
+
+    METHODS
+        DISPLAY_WAYPOINT()
+            DISPLAY locationName
+        END METHOD
+END CLASS
+
+
+CLASS Route
+    ATTRIBUTES
+        waypoints : LIST<Waypoint>
+
+    CONSTRUCTOR()
+        SET waypoints TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_WAYPOINT(w : Waypoint)
+            ADD w TO waypoints
+        END METHOD
+
+        DISPLAY_ROUTE()
+            SET i TO 0
+            REPEAT WHILE i LESS THAN SIZE OF waypoints
+                waypoints[i].DISPLAY_WAYPOINT()
+                SET i TO i + 1
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+CLASS Ride
+    ATTRIBUTES
+        pickupLocation : TEXT
+        dropoffLocation : TEXT
+        route : Route
+
+    CONSTRUCTOR(pl : TEXT, dl : TEXT, r : Route)
+        SET pickupLocation TO pl
+        SET dropoffLocation TO dl
+        SET route TO r
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_FARE()
+            RETURN 0
+        END METHOD
+
+        DISPLAY_RIDE()
+            DISPLAY pickupLocation
+            DISPLAY dropoffLocation
+            route.DISPLAY_ROUTE()
+        END METHOD
+END CLASS
+
+
+CLASS StandardRide INHERITS Ride
+    ATTRIBUTES
+        distance : NUMBER
+        ratePerKm : NUMBER
+
+    CONSTRUCTOR(pl : TEXT, dl : TEXT, r : Route, dist : NUMBER, rate : NUMBER)
+        SUPER(pl, dl, r)
+        SET distance TO dist
+        SET ratePerKm TO rate
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_FARE()
+            RETURN distance * ratePerKm
+        END METHOD
+END CLASS
+
+
+CLASS PremiumRide INHERITS Ride
+    ATTRIBUTES
+        distance : NUMBER
+        premiumRate : NUMBER
+        comfortSurcharge : NUMBER
+
+    CONSTRUCTOR(pl : TEXT, dl : TEXT, r : Route, dist : NUMBER, pr : NUMBER, cs : NUMBER)
+        SUPER(pl, dl, r)
+        SET distance TO dist
+        SET premiumRate TO pr
+        SET comfortSurcharge TO cs
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_FARE()
+            RETURN (distance * premiumRate) + comfortSurcharge
+        END METHOD
+END CLASS
+
+
+CLASS SharedRide INHERITS StandardRide
+    ATTRIBUTES
+        passengerCount : NUMBER
+
+    CONSTRUCTOR(pl : TEXT, dl : TEXT, r : Route, dist : NUMBER, rate : NUMBER, pc : NUMBER)
+        SUPER(pl, dl, r, dist, rate)
+        SET passengerCount TO pc
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_FARE()
+            SET totalFare TO distance * ratePerKm
+            RETURN totalFare / passengerCount
+        END METHOD
+END CLASS
+
+
+START
+	BEGIN
+		CREATE OBJECT waypoint1 OF Waypoint("City Center")
+		CREATE OBJECT waypoint2 OF Waypoint("Mall")
+		CREATE OBJECT waypoint3 OF Waypoint("Airport")
+
+		CREATE OBJECT route1 OF Route()
+		route1.ADD_WAYPOINT(waypoint1)
+		route1.ADD_WAYPOINT(waypoint2)
+		route1.ADD_WAYPOINT(waypoint3)
+
+		CREATE OBJECT ride1 OF StandardRide("Home", "Office", route1, 15, 0.50)
+		CREATE OBJECT ride2 OF PremiumRide("Hotel", "Airport", route1, 20, 0.80, 5)
+		CREATE OBJECT ride3 OF SharedRide("University", "Mall", route1, 18, 0.50, 3)
+
+		ride1.DISPLAY_RIDE()
+		DISPLAY "Fare = " + ride1.CALCULATE_FARE()
+
+		ride2.DISPLAY_RIDE()
+		DISPLAY "Fare = " + ride2.CALCULATE_FARE()
+
+		ride3.DISPLAY_RIDE()
+		DISPLAY "Fare = " + ride3.CALCULATE_FARE()
+	END
+STOP
