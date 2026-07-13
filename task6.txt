@@ -17,6 +17,7 @@ CLASS Instrument
         END METHOD
 END CLASS
 
+
 CLASS Guitar INHERITS Instrument
     ATTRIBUTES
         strings : NUMBER
@@ -67,7 +68,7 @@ END CLASS
 
 CLASS Store
     ATTRIBUTES
-        instruments : LIST<Instrument>
+        instruments : LIST OF Instrument
 
     CONSTRUCTOR()
         SET instruments TO LIST []
@@ -79,33 +80,31 @@ CLASS Store
         END METHOD
 
         VIEW_INSTRUMENTS()
-            SET i TO 0
-            REPEAT WHILE i LESS THAN SIZE OF instruments
-                DISPLAY "Instrument: " + instruments[i].brand + S
-	ATTRIBUTES
-		ice: " + instruments[i].price
+            REPEAT FROM i = 0 TO SIZE OF instruments - 1
+                DISPLAY "Instrument: " + instruments[i].brand + ", Price: " + instruments[i].price
                 instruments[i].DESCRIBE_PLAY_STYLE()
-                SET i TO i + 1
             END REPEAT
         END METHOD
 END CLASS
 
+
 START
-	BEGIN
-		CREATE OBJECT store1 OF STORE()
+BEGIN
+    CREATE OBJECT store1 OF Store()
 
-		CREATE OBJECT guitar1 OF GUITAR("guitar1", 500, 6)
-		CREATE OBJECT drum1 OF DRUMKIT("drum1", 800, 5)
-		CREATE OBJECT keyboard1 OF KEYBOARD("keyboard1", 300, 61)
+    CREATE OBJECT guitar1 OF Guitar("Yamaha", 500, 6)
+    CREATE OBJECT drum1 OF DrumKit("Pearl", 800, 5)
+    CREATE OBJECT keyboard1 OF Keyboard("Casio", 300, 61)
 
-		store1.ADD_INSTRUMENT(guitar1)
-		store1.ADD_INSTRUMENT(drum1)
-		store1.ADD_INSTRUMENT(keyboard1)
+    store1.ADD_INSTRUMENT(guitar1)
+    store1.ADD_INSTRUMENT(drum1)
+    store1.ADD_INSTRUMENT(keyboard1)
 
-		DISPLAY "Store Inventory:"
-		store1.VIEW_INSTRUMENTS()
-	END
+    DISPLAY "Store Inventory:"
+    store1.VIEW_INSTRUMENTS()
+END
 STOP
+
  
 //Task 304: Fitness App Workouts 
 
@@ -133,17 +132,17 @@ END CLASS
 CLASS RunningWorkout INHERITS Workout
     ATTRIBUTES
         distance : NUMBER
-        pace : TEXT
+        paceFactor : NUMBER
 
-    CONSTRUCTOR(d : TEXT, dur : NUMBER, dist : NUMBER, p : TEXT)
+    CONSTRUCTOR(d : TEXT, dur : NUMBER, dist : NUMBER, pf : NUMBER)
         SUPER(d, dur)
         SET distance TO dist
-        SET pace TO p
+        SET paceFactor TO pf
     END CONSTRUCTOR
 
     METHODS
         OVERRIDE CALCULATE_CALORIES()
-            RETURN distance * 10
+            RETURN distance * paceFactor
         END METHOD
 END CLASS
 
@@ -183,7 +182,7 @@ END CLASS
 
 CLASS FitnessLog
     ATTRIBUTES
-        workouts : LIST<Workout>
+        workouts : LIST OF Workout
 
     CONSTRUCTOR()
         SET workouts TO LIST []
@@ -202,7 +201,7 @@ CLASS FitnessLog
             SET i TO 0
             REPEAT WHILE i LESS THAN SIZE OF workouts
                 workouts[i].DISPLAY_INFO()
-                DISPLAY workouts[i].CALCULATE_CALORIES()
+                DISPLAY "Calories: " + workouts[i].CALCULATE_CALORIES()
                 SET i TO i + 1
             END REPEAT
         END METHOD
@@ -264,6 +263,30 @@ CLASS Warrior INHERITS Character
         END METHOD
 END CLASS
 
+CLASS Inventory
+    ATTRIBUTES
+        items : LIST OF Item
+
+    CONSTRUCTOR()
+        SET items TO LIST []
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_ITEM(it : Item)
+            ADD it TO items
+        END METHOD
+
+        REMOVE_ITEM(it : Item)
+            REMOVE it FROM items
+        END METHOD
+
+        DISPLAY_ITEMS()
+            REPEAT FROM i = 0 TO SIZE OF items - 1
+                DISPLAY items[i].itemName
+            END REPEAT
+        END METHOD
+END CLASS
+
 CLASS Mage INHERITS Character
     ATTRIBUTES
         manaPool : NUMBER
@@ -275,7 +298,12 @@ CLASS Mage INHERITS Character
 
     METHODS
         OVERRIDE ATTACK()
-            DISPLAY "Casts a magic spell"
+            IF manaPool > 0 THEN
+                DISPLAY "Casts a magic spell"
+                SET manaPool TO manaPool - 10
+            ELSE
+                DISPLAY "No mana left!"
+            END IF
         END METHOD
 END CLASS
 
@@ -290,7 +318,12 @@ CLASS Archer INHERITS Character
 
     METHODS
         OVERRIDE ATTACK()
-            DISPLAY "Shoots an arrow"
+            IF arrowSupply > 0 THEN
+                DISPLAY "Shoots an arrow"
+                SET arrowSupply TO arrowSupply - 1
+            ELSE
+                DISPLAY "No arrows left!"
+            END IF
         END METHOD
 END CLASS
 
@@ -359,14 +392,12 @@ END CLASS
 
 CLASS ElectricityBill INHERITS Bill
     ATTRIBUTES
-        unitsConsumed : NUMBER
         dayRate : NUMBER
         nightRate : NUMBER
         timeOfDay : TEXT
 
-    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, uc : NUMBER, dr : NUMBER, nr : NUMBER, tod : TEXT)
+    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, dr : NUMBER, nr : NUMBER, tod : TEXT)
         SUPER(bp, dd, mr)
-        SET unitsConsumed TO uc
         SET dayRate TO dr
         SET nightRate TO nr
         SET timeOfDay TO tod
@@ -374,53 +405,54 @@ CLASS ElectricityBill INHERITS Bill
 
     METHODS
         OVERRIDE CALCULATE_AMOUNT()
+            SET consumption TO meterReading.GET_CONSUMPTION()
             IF timeOfDay EQUALS "DAY" THEN
-                RETURN unitsConsumed * dayRate
+                RETURN consumption * dayRate
             ELSE
-                RETURN unitsConsumed * nightRate
+                RETURN consumption * nightRate
             END IF
         END METHOD
 
         OVERRIDE DISPLAY_BILL()
+            SUPER.DISPLAY_BILL()
             DISPLAY "Electricity Bill"
-            DISPLAY CALCULATE_AMOUNT()
+            DISPLAY "Amount: " + CALCULATE_AMOUNT()
         END METHOD
 END CLASS
 
+
 CLASS WaterBill INHERITS Bill
     ATTRIBUTES
-        litersConsumed : NUMBER
         flatRate : NUMBER
         standingCharge : NUMBER
 
-    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, lc : NUMBER, fr : NUMBER, sc : NUMBER)
+    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, fr : NUMBER, sc : NUMBER)
         SUPER(bp, dd, mr)
-        SET litersConsumed TO lc
         SET flatRate TO fr
         SET standingCharge TO sc
     END CONSTRUCTOR
 
     METHODS
         OVERRIDE CALCULATE_AMOUNT()
-            RETURN (litersConsumed * flatRate) + standingCharge
+            SET consumption TO meterReading.GET_CONSUMPTION()
+            RETURN (consumption * flatRate) + standingCharge
         END METHOD
 
         OVERRIDE DISPLAY_BILL()
+            SUPER.DISPLAY_BILL()
             DISPLAY "Water Bill"
-            DISPLAY CALCULATE_AMOUNT()
+            DISPLAY "Amount: " + CALCULATE_AMOUNT()
         END METHOD
 END CLASS
 
 CLASS GasBill INHERITS Bill
     ATTRIBUTES
-        unitsConsumed : NUMBER
         rate : NUMBER
         season : TEXT
         winterSurcharge : NUMBER
 
-    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, uc : NUMBER, r : NUMBER, s : TEXT, ws : NUMBER)
+    CONSTRUCTOR(bp : TEXT, dd : TEXT, mr : MeterReading, r : NUMBER, s : TEXT, ws : NUMBER)
         SUPER(bp, dd, mr)
-        SET unitsConsumed TO uc
         SET rate TO r
         SET season TO s
         SET winterSurcharge TO ws
@@ -428,7 +460,8 @@ CLASS GasBill INHERITS Bill
 
     METHODS
         OVERRIDE CALCULATE_AMOUNT()
-            SET total TO unitsConsumed * rate
+            SET consumption TO meterReading.GET_CONSUMPTION()
+            SET total TO consumption * rate
             IF season EQUALS "WINTER" THEN
                 SET total TO total + winterSurcharge
             END IF
@@ -436,8 +469,9 @@ CLASS GasBill INHERITS Bill
         END METHOD
 
         OVERRIDE DISPLAY_BILL()
+            SUPER.DISPLAY_BILL()
             DISPLAY "Gas Bill"
-            DISPLAY CALCULATE_AMOUNT()
+            DISPLAY "Amount: " + CALCULATE_AMOUNT()
         END METHOD
 END CLASS
 
@@ -446,7 +480,7 @@ CLASS CustomerAccount
     ATTRIBUTES
         accountNumber : TEXT
         customerName : TEXT
-        bills : LIST<Bill>
+        bills : LIST OF Bill
 
     CONSTRUCTOR(an : TEXT, cn : TEXT)
         SET accountNumber TO an
@@ -511,7 +545,7 @@ END CLASS
 
 CLASS Route
     ATTRIBUTES
-        waypoints : LIST<Waypoint>
+        waypoints : LIST OF Waypoint
 
     CONSTRUCTOR()
         SET waypoints TO LIST []
@@ -523,10 +557,8 @@ CLASS Route
         END METHOD
 
         DISPLAY_ROUTE()
-            SET i TO 0
-            REPEAT WHILE i LESS THAN SIZE OF waypoints
+            REPEAT FROM i = 0 TO SIZE OF waypoints - 1
                 waypoints[i].DISPLAY_WAYPOINT()
-                SET i TO i + 1
             END REPEAT
         END METHOD
 END CLASS
@@ -606,7 +638,7 @@ CLASS SharedRide INHERITS StandardRide
 
     METHODS
         OVERRIDE CALCULATE_FARE()
-            SET totalFare TO distance * ratePerKm
+            SET totalFare TO SUPER.CALCULATE_FARE()
             RETURN totalFare / passengerCount
         END METHOD
 END CLASS
