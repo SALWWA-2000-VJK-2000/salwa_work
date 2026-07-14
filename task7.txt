@@ -1,21 +1,53 @@
 //Task 308: Insurance Claims Processing 
 CLASS Claim
-	ATTRIBUTES
+    ATTRIBUTES
         claimNumber : NUMBER
-		dateFiled: 
-		status: TEXT
+        dateFiled : TEXT
+        status : TEXT
+        documentation : DocumentationFolder
 
-    CONSTRUCTOR(pl : TEXT, dl : TEXT, r : Route, dist : NUMBER, rate : NUMBER, pc : NUMBER)
-        SUPER(pl, dl, r, dist, rate)
-        SET passengerCount TO pc
+    CONSTRUCTOR(cn : NUMBER, df : TEXT, st : TEXT, doc : DocumentationFolder)
+        SET claimNumber TO cn
+        SET dateFiled TO df
+        SET status TO st
+        SET documentation TO doc
     END CONSTRUCTOR
 
     METHODS
         CALCULATE_PAYOUT()
-            SET totalFare TO distance * ratePerKm
-            RETURN totalFare / passengerCount
+            RETURN 0
+        END METHOD
+
+        DISPLAY_CLAIM()
+            DISPLAY "Claim Number: " + claimNumber
+            DISPLAY "Date Filed: " + dateFiled
+            DISPLAY "Status: " + status
+            documentation.VIEW_DOCUMENTS()
         END METHOD
 END CLASS
+
+
+CLASS PropertyClaim INHERITS Claim
+    ATTRIBUTES
+        damageValue : NUMBER
+        isProperlyMaintained : BOOLEAN
+
+    CONSTRUCTOR(cn : NUMBER, df : TEXT, st : TEXT, doc : DocumentationFolder, dv : NUMBER, pm : BOOLEAN)
+        SUPER(cn, df, st, doc)
+        SET damageValue TO dv
+        SET isProperlyMaintained TO pm
+    END CONSTRUCTOR
+
+    METHODS
+        OVERRIDE CALCULATE_PAYOUT()
+            IF isProperlyMaintained = TRUE THEN
+                RETURN damageValue
+            ELSE
+                RETURN damageValue * 0.8
+            END IF
+        END METHOD
+END CLASS
+
 
 //Task 309: University Library Loans (Medium)
 CLASS ConditionReport
@@ -63,9 +95,9 @@ CLASS StandardBook INHERITS LoanItem
     ATTRIBUTES
         feePerDay : NUMBER
 
-    CONSTRUCTOR(t : TEXT, b : TEXT, ld : NUMBER, cr : ConditionReport, fpd : NUMBER)
+    CONSTRUCTOR(t : TEXT, b : TEXT, ld : NUMBER, cr : ConditionReport, feePerDay : NUMBER)
         SUPER(t, b, ld, cr)
-        SET feePerDay TO fpd
+        SET feePerDay TO feePerDay
     END CONSTRUCTOR
 
     METHODS
@@ -115,7 +147,7 @@ END CLASS
 CLASS StudentAccount
     ATTRIBUTES
         studentName : TEXT
-        loans : LIST<LoanItem>
+        loans : LIST OF LoanItem
 
     CONSTRUCTOR(sn : TEXT)
         SET studentName TO sn
@@ -127,12 +159,10 @@ CLASS StudentAccount
             ADD l TO loans
         END METHOD
 
-        VIEW_LOANS()
-            SET i TO 0
-            REPEAT WHILE i LESS THAN SIZE OF loans
+        VIEW_LOANS(daysOverdue : NUMBER)
+            REPEAT FROM i = 0 TO SIZE OF loans - 1
                 loans[i].DISPLAY_ITEM()
-                DISPLAY "Late Fee (5 days overdue) = " + loans[i].CALCULATE_LATE_FEE(5)
-                SET i TO i + 1
+                DISPLAY "Late Fee (" + daysOverdue + " days overdue) = " + loans[i].CALCULATE_LATE_FEE(daysOverdue)
             END REPEAT
         END METHOD
 END CLASS
@@ -242,20 +272,18 @@ END CLASS
 
 CLASS VIPAccessRide INHERITS RollerCoaster
     METHODS
-        OVERRIDE CALCULATE_WAIT_TIME(peopleInLine : NUMBER, vipGuests : NUMBER)
+        CALCULATE_VIP_WAIT_TIME(peopleInLine : NUMBER, vipGuests : NUMBER)
             SET standardGuests TO peopleInLine - vipGuests
             SET standardWait TO SUPER.CALCULATE_WAIT_TIME(standardGuests)
             SET vipWait TO cycleTime
-            DISPLAY "VIP Wait Time = " + vipWait
-            DISPLAY "Standard Wait Time = " + standardWait
-            RETURN 0
+            RETURN "VIP Wait Time = " + vipWait + ", Standard Wait Time = " + standardWait
         END METHOD
 END CLASS
 
 CLASS Park
     ATTRIBUTES
-        rides : LIST<Ride>
-		
+        rides : LIST OF Ride
+        
     CONSTRUCTOR()
         SET rides TO LIST []
     END CONSTRUCTOR
@@ -266,10 +294,8 @@ CLASS Park
         END METHOD
 
         VIEW_RIDES()
-            SET i TO 0
-            REPEAT WHILE i LESS THAN SIZE OF rides
+            REPEAT FROM i = 0 TO SIZE OF rides - 1
                 rides[i].DISPLAY_RIDE()
-                SET i TO i + 1
             END REPEAT
         END METHOD
 END CLASS
@@ -316,6 +342,10 @@ CLASS PaymentTerms
             DISPLAY dueDate
             DISPLAY lateInterestRate
         END METHOD
+
+        CALCULATE_LATE_FEE(daysLate : NUMBER)
+            RETURN daysLate * lateInterestRate
+        END METHOD
 END CLASS
 
 
@@ -334,10 +364,7 @@ CLASS Invoice
     END CONSTRUCTOR
 
     METHODS
-        CALCULATE_TOTAL()
-            RETURN 0
-        END METHOD
-
+        ABSTRACT CALCULATE_TOTAL()
         DISPLAY_INVOICE()
             DISPLAY invoiceNumber
             DISPLAY dateIssued
@@ -365,8 +392,8 @@ END CLASS
 
 CLASS HourlyInvoice INHERITS Invoice
     ATTRIBUTES
-        hours : LIST<NUMBER>
-        approvals : LIST<BOOLEAN>
+        hours : LIST OF NUMBER
+        approvals : LIST OF BOOLEAN
         hourlyRate : NUMBER
 
     CONSTRUCTOR(inum : TEXT, di : TEXT, cn : TEXT, pt : PaymentTerms, hr : NUMBER)
@@ -384,12 +411,10 @@ CLASS HourlyInvoice INHERITS Invoice
 
         OVERRIDE CALCULATE_TOTAL()
             SET total TO 0
-            SET i TO 0
-            REPEAT WHILE i LESS THAN SIZE OF hours
-                IF approvals[i] EQUALS TRUE THEN
+            REPEAT FROM i = 0 TO SIZE OF hours - 1
+                IF approvals[i] = TRUE THEN
                     SET total TO total + (hours[i] * hourlyRate)
                 END IF
-                SET i TO i + 1
             END REPEAT
             RETURN total
         END METHOD
@@ -546,13 +571,23 @@ CLASS DatabaseServer INHERITS Server
     METHODS
         OVERRIDE CALCULATE_LOAD()
             IF queryThroughput >= maxQueriesPerSecond THEN
-                DISPLAY "Server at full capacity, no new connections allowed"
+                DISPLAY "Server at full capacity"
                 RETURN 100
             ELSE
                 RETURN (queryThroughput / maxQueriesPerSecond) * 100
             END IF
         END METHOD
+
+        ACCEPT_CONNECTION()
+            IF queryThroughput < maxQueriesPerSecond THEN
+                SET queryThroughput TO queryThroughput + 1
+                DISPLAY "Connection accepted"
+            ELSE
+                DISPLAY "Connection refused: capacity reached"
+            END IF
+        END METHOD
 END CLASS
+
 
 CLASS CacheServer INHERITS DatabaseServer
     ATTRIBUTES
@@ -565,6 +600,12 @@ CLASS CacheServer INHERITS DatabaseServer
 
     METHODS
         OVERRIDE CALCULATE_LOAD()
+            IF cacheHitRatio < 0 THEN
+                SET cacheHitRatio TO 0
+            END IF
+            IF cacheHitRatio > 100 THEN
+                SET cacheHitRatio TO 100
+            END IF
             SET baseLoad TO SUPER.CALCULATE_LOAD()
             SET adjustedLoad TO baseLoad * (1 - (cacheHitRatio / 100))
             RETURN adjustedLoad
@@ -574,7 +615,7 @@ END CLASS
 CLASS Rack
     ATTRIBUTES
         rackID : TEXT
-        servers : LIST<Server>
+        servers : LIST OF Server
 
     CONSTRUCTOR(rid : TEXT)
         SET rackID TO rid
@@ -587,14 +628,13 @@ CLASS Rack
         END METHOD
 
         VIEW_SERVERS()
-            SET i TO 0
-            REPEAT WHILE i LESS THAN SIZE OF servers
+            REPEAT FROM i = 0 TO SIZE OF servers - 1
                 servers[i].DISPLAY_SERVER()
                 DISPLAY "Load = " + servers[i].CALCULATE_LOAD() + "%"
-                SET i TO i + 1
             END REPEAT
         END METHOD
 END CLASS
+
 
 START
 	BEGIN
